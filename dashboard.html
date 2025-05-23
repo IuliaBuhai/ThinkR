@@ -1,291 +1,33 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panou Control - ThinkR</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #6c5ce7;
-      --primary-dark: #5649c0;
-      --secondary: #00b894;
-      --dark: #121212;
-      --darker: #0a0a0a;
-      --card-bg: #1e1e1e;
-      --light: #e0e0e0;
-      --gray: #a0a0a0;
-      --border: #333333;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: var(--dark);
-      color: var(--light);
-      min-height: 100vh;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-    
-    /* Header */
-    header {
-      background-color: var(--darker);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      position: fixed;
-      width: 100%;
-      z-index: 100;
-    }
-    
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      font-family: 'Playfair Display', serif;
-      font-weight: 700;
-      font-size: 24px;
-      color: var(--primary);
-    }
-    
-    .logo img {
-      height: 30px;
-      margin-right: 10px;
-    }
-    
-    .nav-links {
-      display: flex;
-      list-style: none;
-    }
-    
-    .nav-links li {
-      margin-left: 30px;
-    }
-    
-    .nav-links a {
-      text-decoration: none;
-      color: var(--light);
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-    
-    .nav-links a:hover {
-      color: var(--primary);
-    }
-    
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background-color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-    
-    /* Dashboard Content */
-    .dashboard {
-      padding: 180px 0 100px;
-    }
-    
-    .dashboard-header {
-      margin-bottom: 40px;
-    }
-    
-    .dashboard-header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 36px;
-      font-weight: 700;
-      margin-bottom: 15px;
-      color: var(--light);
-    }
-    
-    .dashboard-header p {
-      font-size: 18px;
-      color: var(--gray);
-      max-width: 700px;
-    }
-    
-    /* Card Styles */
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      padding: 30px;
-      margin-bottom: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
-    .card-title {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: var(--light);
-    }
-    
-    /* Form Elements */
-    input[type="text"] {
-      width: 100%;
-      padding: 15px;
-      margin-bottom: 20px;
-      background-color: var(--darker);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--light);
-      font-size: 16px;
-      transition: border-color 0.3s;
-    }
-    
-    input[type="text"]:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-    
-    .button-group {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-    
-    .btn {
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      border: none;
-      font-size: 16px;
-    }
-    
-    .btn-primary {
-      background-color: var(--primary);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px);
-    }
-    
-    .btn-outline {
-      background-color: transparent;
-      color: var(--gray);
-      border: 2px solid var(--border);
-    }
-    
-    .btn-outline:hover {
-      background-color: rgba(255,255,255,0.05);
-      color: var(--light);
-    }
-    
-    /* Output Area */
-    #output {
-      padding: 20px;
-      background-color: var(--darker);
-      border-radius: 6px;
-      min-height: 100px;
-      margin-top: 20px;
-      border: 1px solid var(--border);
-      color: var(--gray);
-      font-family: monospace;
-    }
-    
-    /* Back Link */
-    .back-link {
-      display: inline-block;
-      margin-top: 30px;
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-    
-    .back-link:hover {
-      color: var(--light);
-      text-decoration: underline;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-      .dashboard {
-        padding: 140px 0 60px;
-      }
-      
-      .button-group {
-        flex-direction: column;
-      }
-      
-      .nav-links {
-        display: none;
-      }
-    }
-  </style>
-  <script type="module" src="dashboard.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Plan Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js" defer></script>
 </head>
 <body>
-  <header>
+    <header>
+        <h1>Study Plan Dashboard</h1>
+        <button id="logout">Logout</button>
+    </header>
+    
     <div class="container">
-      <nav>
-        <div class="logo">
-          <img src="images/thinkr-logo.png" alt="ThinkR Logo">
-          <span>ThinkR</span>
-        </div>
-        <ul class="nav-links">
-          <li><a href="index.html">Acasă</a></li>
-          <li><a href="#">Instrumente</a></li>
-          <li><a href="#">Setări</a></li>
-        </ul>
-        <div class="user-info">
-          <div class="user-avatar">U</div>
-          <div id="output"></div>
-        </div>
-      </nav>
-    </div>
-  </header>
-
-  <main class="dashboard">
-    <div class="container">
-      <div class="dashboard-header">
-        <h1>Panou de Control</h1>
-        <p>Acest panou este accesibil doar utilizatorilor autentificați. Gestionează-ți datele și preferințele aici.</p>
-      </div>
-      
-      <div class="card">
-        <h2 class="card-title">Salvează date</h2>
-        <input type="text" id="userData" placeholder="Introduceți date de salvat..." />
-        <div class="button-group">
-          <button id="saveData" class="btn btn-primary">Salvează</button>
-          <button id="logout" class="btn btn-outline">Deconectare</button>
+        <div class="form-container">
+            <h2>Create New Study Plan</h2>
+            <form id="studyPlanForm">
+                <!-- Your existing form fields -->
+            </form>
         </div>
         
-        <h2 class="card-title">Date salvate</h2>
-        <div id="output">Aici vor apărea datele salvate...</div>
-        
-        <a href="index.html" class="back-link">← Înapoi la pagina principală</a>
-      </div>
+        <div class="plans-container">
+            <div id="generatedPlan"></div>
+            <div class="previous-plans">
+                <h2>Your Previous Plans</h2>
+                <div id="plansList" class="plans-list"></div>
+            </div>
+        </div>
     </div>
-  </main>
 </body>
 </html>
