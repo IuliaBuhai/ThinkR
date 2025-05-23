@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Plan Generator</title>
+    <title> PlaneR - Generator Plan Învățare</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="style_planuri.css">
     <script type="module" src="auth-check.js" defer></script>
@@ -11,47 +11,44 @@
 </head>
 <body>
     <div class="container">
-        <h1>Study Plan Generator</h1>
+        <h1>PlanerR - Generator Plan Învățare</h1>
         
         <div class="form-container">
-            <h2>Create New Study Plan</h2>
+            <h2>Creează un plan de studiu</h2>
             <form id="studyPlanForm">
                 <div class="form-group">
-                    <label for="class">Class:</label>
+                    <label for="class">Clasa:</label>
                     <input type="text" id="class" name="class" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="subject">Subject:</label>
+                    <label for="subject">Subiect:</label>
                     <input type="text" id="subject" name="subject" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="lesson">Lesson/Topic:</label>
+                    <label for="lesson">Lecție:</label>
                     <input type="text" id="lesson" name="lesson" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="days">Days Available:</label>
+                    <label for="days">Zile disponibile:</label>
                     <input type="number" id="days" name="days" min="1" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="hoursPerDay">Hours per Day (optional):</label>
+                    <label for="hoursPerDay">Ore disponibile pe zi (opțional):</label>
                     <input type="number" id="hoursPerDay" name="hoursPerDay" min="0">
                 </div>
                 
-                <button type="submit">Generate Plan</button>
+                <button type="submit">Generare plan</button>
             </form>
         </div>
         
         <div class="plans-container">
             <div id="generatedPlan" class="generated-plan"></div>
             
-            <div class="previous-plans">
-                <h2>Your Previous Plans</h2>
-                <div id="plansList" class="plans-list"></div>
-            </div>
+            
         </div>
     </div>
 </body>
