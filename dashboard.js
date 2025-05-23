@@ -21,7 +21,7 @@ onAuthStateChanged(auth, user => {
     alert("You must be logged in to view this page.");
     window.location.href = "auth.html";
   } else {
-    document.getElementById('output').innerText = user.email;
+    document.getElementById('output').innerText = "Welcome, " + user.email;
   }
 });
 
@@ -38,3 +38,30 @@ document.getElementById('logout').onclick = () => {
     window.location.href = "auth.html";
   });
 };
+
+async function showUserData() {
+  const user = auth.currentUser;
+  if (!user) {
+    document.getElementById("output").textContent = "You need to be logged in to see data.";
+    return;
+  }
+
+  const userDocRef = doc(db, "users", user.uid);
+  const userDocSnap = await getDoc(userDocRef);
+
+  if (userDocSnap.exists()) {
+    const data = userDocSnap.data();
+    document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+  } else {
+    document.getElementById("output").textContent = "No data found for this user.";
+  }
+}
+
+// Call this function after user is logged in and auth is ready
+onAuthStateChanged(auth, user => {
+  if (user) {
+    showUserData();
+  } else {
+    document.getElementById("output").textContent = "Please log in to view your data.";
+  }
+});
