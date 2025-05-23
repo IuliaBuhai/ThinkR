@@ -18,7 +18,10 @@ document.getElementById('signup').onclick = () => {
   const email = emailInput.value;
   const password = passwordInput.value;
   createUserWithEmailAndPassword(auth, email, password)
-    .then(() => alert("Signed up!"))
+    .then(() => {
+      alert("Signed up!");
+      window.location.href = "dashboard.html";  // redirect after signup
+    })
     .catch(err => alert(err.message));
 };
 
@@ -26,7 +29,10 @@ document.getElementById('login').onclick = () => {
   const email = emailInput.value;
   const password = passwordInput.value;
   signInWithEmailAndPassword(auth, email, password)
-    .then(() => alert("Logged in!"))
+    .then(() => {
+      alert("Logged in!");
+      window.location.href = "dashboard.html";  // redirect after login
+    })
     .catch(err => alert(err.message));
 };
 
