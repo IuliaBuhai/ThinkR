@@ -64,15 +64,34 @@ function setupAuthHandlers() {
         }
     });
 
-    document.getElementById('login')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-            await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-            alert("Logged in successfully!");
-        } catch (err) {
-            alert(err.message);
+    // Modify your login handler
+document.getElementById('login')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+        await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        // Redirect to dashboard after successful login
+        window.location.href = 'dashboard.html';
+    } catch (err) {
+        alert(err.message);
+    }
+});
+
+// Update auth state listener
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+        // If on auth page, redirect to dashboard
+        if (window.location.pathname.includes('auth.html')) {
+            window.location.href = 'dashboard.html';
         }
-    });
+        loadPreviousPlans(user.uid);
+    } else {
+        // If not on auth page, redirect to login
+        if (!window.location.pathname.includes('auth.html')) {
+            window.location.href = 'auth.html';
+        }
+    }
+});
 
     document.getElementById('logout')?.addEventListener('click', async (e) => {
         e.preventDefault();
