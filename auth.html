@@ -316,20 +316,119 @@
         </div>
     </main>
 
-    <script>
+     <script>
+        // Form toggle functions
         function arataFormularAutentificare() {
             document.getElementById('formularAutentificare').classList.add('active');
             document.getElementById('formularInregistrare').classList.remove('active');
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('signupError').textContent = '';
+            clearErrors();
         }
 
         function arataFormularInregistrare() {
             document.getElementById('formularInregistrare').classList.add('active');
             document.getElementById('formularAutentificare').classList.remove('active');
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('signupError').textContent = '';
+            clearErrors();
         }
+
+        function clearErrors() {
+            const errors = document.querySelectorAll('.error-message');
+            errors.forEach(error => error.textContent = '');
+        }
+
+        // Auth functions
+        document.addEventListener('DOMContentLoaded', () => {
+            // Login form handler
+            const loginForm = document.getElementById('formularLogin');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('emailAutentificare').value;
+                    const password = document.getElementById('parolaAutentificare').value;
+                    const errorElement = document.getElementById('loginError');
+                    
+                    try {
+                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                        // Redirect on successful login
+                        window.location.href = 'dashboard.html';
+                    } catch (err) {
+                        errorElement.textContent = getRomanianErrorMessage(err.code);
+                        console.error("Login error:", err);
+                    }
+                });
+            }
+
+            // Signup form handler
+            const signupForm = document.getElementById('formularSignup');
+            if (signupForm) {
+                signupForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('emailInregistrare').value;
+                    const password = document.getElementById('parolaInregistrare').value;
+                    const confirmPassword = document.getElementById('confirmaParola').value;
+                    const errorElement = document.getElementById('signupError');
+                    
+                    // Validate password match
+                    if (password !== confirmPassword) {
+                        errorElement.textContent = "Parolele nu coincid!";
+                        return;
+                    }
+
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        // Optional: Save additional user info to Firestore
+                        // await saveUserProfile(userCredential.user.uid, { name: document.getElementById('numeInregistrare').value });
+                        alert("Cont creat cu succes!");
+                        arataFormularAutentificare();
+                    } catch (err) {
+                        errorElement.textContent = getRomanianErrorMessage(err.code);
+                        console.error("Signup error:", err);
+                    }
+                });
+            }
+        });
+
+        // Firebase error messages in Romanian
+        function getRomanianErrorMessage(errorCode) {
+            const messages = {
+                'auth/email-already-in-use': 'Acest email este deja înregistrat.',
+                'auth/invalid-email': 'Adresa de email este invalidă.',
+                'auth/operation-not-allowed': 'Operația nu este permisă.',
+                'auth/weak-password': 'Parola este prea slabă (minim 8 caractere).',
+                'auth/user-disabled': 'Contul a fost dezactivat.',
+                'auth/user-not-found': 'Nu există un cont asociat acestui email.',
+                'auth/wrong-password': 'Parolă incorectă.',
+                'auth/too-many-requests': 'Prea multe încercări. Încearcă mai târziu.'
+            };
+            return messages[errorCode] || 'A apărut o eroare. Te rugăm să încerci din nou.';
+        }
+    </script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
+            authDomain: "thinkr-298dd.firebaseapp.com",
+            projectId: "thinkr-298dd",
+            storageBucket: "thinkr-298dd.appspot.com",
+            messagingSenderId: "1087091426997",
+            appId: "1:1087091426997:web:4e080caec0181377aa60fc",
+            measurementId: "G-N20TE0F9VT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        // Make auth available globally
+        window.auth = auth;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
     </script>
 </body>
 </html>
