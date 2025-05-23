@@ -1,46 +1,84 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { 
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    where,
+    getDocs,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
+    authDomain: "thinkr-298dd.firebaseapp.com",
+    projectId: "thinkr-298dd",
+    storageBucket: "thinkr-298dd.appspot.com",
+    messagingSenderId: "1087091426997",
+    appId: "1:1087091426997:web:4e080caec0181377aa60fc",
+    measurementId: "G-N20TE0F9VT"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    alert("Please log in to access this page.");
-    window.location.href = "auth.html";  // Redirect if not logged in
-    return;
-  }
-
-  // User is logged in! Now fetch their Firestore data
-  try {
-    const userDocRef = doc(db, "users", user.uid);
-    const userDocSnap = await getDoc(userDocRef);
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data();
-      
-      // Example: show the user email on the page
-      const emailElem = document.getElementById("userEmail");
-      if (emailElem) {
-        emailElem.textContent = userData.email || user.email;
-      }
-      
-      // You can now use userData anywhere in this script
-      console.log("User data:", userData);
-    } else {
-      console.log("No user data found in Firestore for this user.");
+// Authentication functions
+window.authFunctions = {
+    signUp: (email, password) => {
+        return createUserWithEmailAndPassword(auth, email, password);
+    },
+    logIn: (email, password) => {
+        return signInWithEmailAndPassword(auth, email, password);
+    },
+    logOut: () => {
+        return signOut(auth);
     }
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
+};
+
+// Firestore functions
+window.firestoreFunctions = {
+    saveStudyPlan: async (userId, formData, generatedHTML) => {
+        try {
+            const docRef = await addDoc(collection(db, "studyPlans"), {
+                userId: userId,
+                class: formData.class,
+                subject: formData.subject,
+                lesson: formData.lesson,
+                days: formData.days,
+                hoursPerDay: formData.hoursPerDay || null,
+                generatedHTML: generatedHTML,
+                createdAt: serverTimestamp()
+            });
+            return docRef.id;
+        } catch (e) {
+            console.error("Error adding document: ", e);
+            throw e;
+        }
+    },
+    loadPreviousPlans: async (userId) => {
+        const q = query(collection(db, "studyPlans"), where("userId", "==", userId));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    }
+};
+
+// Auth state listener
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        // Not logged in - redirect handled by your auth.html page
+        return;
+    }
+    // User is logged in, you can load their data here if needed
+    window.currentUser = user;
 });
