@@ -103,10 +103,76 @@ async function loadPreviousPlans() {
     }
 }
 
-async function generateStudyPlanHTML(formData) {
-    // This is where you would call your API to generate the actual plan
-    // For now, we'll use a simple template
+  async function generateStudyPlanHTML(formData) {
+    // This is where you'll call the OpenAI API
+    const OPENAI_API_KEY = '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'; // Replace with your actual key
     
+    const hoursText = formData.hoursPerDay 
+        ? `for ${formData.hoursPerDay} hour(s) per day` 
+        : '';
+    
+    // Create the prompt for OpenAI
+    const prompt = `Create a detailed study plan for:
+    - Class: ${formData.class}
+    - Subject: ${formData.subject}
+    - Lesson: ${formData.lesson}
+    - Duration: ${formData.days} days ${hoursText}
+    
+    The plan should include:
+    1. Daily breakdown of topics to cover
+    2. Suggested study techniques
+    3. Recommended resources
+    4. Practice exercises
+    
+    Format the response in HTML with proper headings and lists.`;
+    
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                temperature: 0.7
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error?.message || 'Failed to generate plan');
+        }
+        
+        // Get the generated content
+        const generatedContent = data.choices[0]?.message?.content;
+        
+        // Wrap in a div for styling
+        return `
+            <div class="study-plan">
+                <h2>Study Plan for ${formData.subject} - ${formData.lesson}</h2>
+                <p><strong>Class:</strong> ${formData.class}</p>
+                <p><strong>Duration:</strong> ${formData.days} days ${hoursText}</p>
+                ${generatedContent}
+                <p><em>Plan generated on ${new Date().toLocaleDateString()}</em></p>
+            </div>
+        `;
+    } catch (error) {
+        console.error("Error calling OpenAI API:", error);
+        // Fallback to simple plan if API fails
+        return simpleFallbackPlan(formData);
+    }
+}
+
+function simpleFallbackPlan(formData) {
+    // Simple fallback plan if API fails
     const hoursText = formData.hoursPerDay 
         ? `for ${formData.hoursPerDay} hour(s) per day` 
         : '';
@@ -116,26 +182,14 @@ async function generateStudyPlanHTML(formData) {
             <h2>Study Plan for ${formData.subject} - ${formData.lesson}</h2>
             <p><strong>Class:</strong> ${formData.class}</p>
             <p><strong>Duration:</strong> ${formData.days} days ${hoursText}</p>
-            
             <h3>Daily Study Schedule:</h3>
             <ul>
     `;
     
-    // Generate daily tasks - replace with your actual plan generation
     for (let day = 1; day <= formData.days; day++) {
-        let dayContent = '';
-        
-        if (day === 1) {
-            dayContent = `Introduction to ${formData.lesson} and key concepts`;
-        } else if (day === formData.days) {
-            dayContent = `Review and practice test for ${formData.lesson}`;
-        } else {
-            dayContent = `Deep study of ${formData.lesson} topics and exercises`;
-        }
-        
         planHTML += `
             <li>
-                <strong>Day ${day}:</strong> ${dayContent}
+                <strong>Day ${day}:</strong> Study ${formData.lesson} topics
             </li>
         `;
     }
