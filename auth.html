@@ -5,26 +5,195 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Pagina de autentificare și înregistrare">
     <title>Autentificare | Înregistrare</title>
-    <link rel="stylesheet" href="styles.css">
-    <script type="module" src="app.js" defer></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <style>
-        .auth-form { display: none; }
-        .auth-form.active { display: block; }
-        .schimba-formular { 
-            text-align: center; 
-            margin: 1rem 0;
-            cursor: pointer;
-            color: #0066cc;
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --text: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #adb5bd;
+            --danger: #ef233c;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
-        .schimba-formular:hover {
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .pagina-autentificare {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .container-autentificare {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            width: 100%;
+        }
+
+        .auth-form {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .antet-autentificare {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .antet-autentificare h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .subtitlu-autentificare {
+            color: var(--gray);
+            font-size: 15px;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .grup-formular {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .grup-formular label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .grup-formular input {
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            transition: var(--transition);
+            background-color: var(--light);
+        }
+
+        .grup-formular input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .grup-formular input::placeholder {
+            color: var(--gray);
+            opacity: 0.7;
+        }
+
+        .parola-uitata {
+            font-size: 13px;
+            color: var(--primary);
+            text-decoration: none;
+            text-align: right;
+            margin-top: 4px;
+            transition: var(--transition);
+        }
+
+        .parola-uitata:hover {
             text-decoration: underline;
         }
+
+        .actiuni-formular {
+            margin-top: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primar {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primar:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .schimba-formular {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .schimba-formular span {
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .schimba-formular span:hover {
+            text-decoration: underline;
+        }
+
         .error-message {
-            color: #d32f2f;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 576px) {
+            .container-autentificare {
+                padding: 30px 20px;
+            }
+            
+            .antet-autentificare h1 {
+                font-size: 24px;
+            }
         }
     </style>
+    <script type="module" src="app.js" defer></script>
 </head>
 <body>
     <main class="pagina-autentificare">
@@ -36,7 +205,7 @@
                     <p class="subtitlu-autentificare">Autentifică-te în contul tău</p>
                 </header>
                 
-                <form id="formularLogin" class="form-container">
+                <form id="formularLogin" class="form-container" aria-label="Formular autentificare">
                     <div class="grup-formular">
                         <label for="emailAutentificare">Adresă de email</label>
                         <input 
@@ -82,7 +251,7 @@
                     <p class="subtitlu-autentificare">Alătură-te comunității noastre</p>
                 </header>
                 
-                <form id="formularSignup" class="form-container">
+                <form id="formularSignup" class="form-container" aria-label="Formular înregistrare">
                     <div class="grup-formular">
                         <label for="numeInregistrare">Nume complet</label>
                         <input 
@@ -151,16 +320,13 @@
         function arataFormularAutentificare() {
             document.getElementById('formularAutentificare').classList.add('active');
             document.getElementById('formularInregistrare').classList.remove('active');
-            clearErrors();
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('signupError').textContent = '';
         }
 
         function arataFormularInregistrare() {
             document.getElementById('formularInregistrare').classList.add('active');
             document.getElementById('formularAutentificare').classList.remove('active');
-            clearErrors();
-        }
-
-        function clearErrors() {
             document.getElementById('loginError').textContent = '';
             document.getElementById('signupError').textContent = '';
         }
