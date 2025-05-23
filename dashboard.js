@@ -21,7 +21,7 @@ onAuthStateChanged(auth, user => {
     alert("You must be logged in to view this page.");
     window.location.href = "auth.html";
   } else {
-    document.getElementById('output').innerText = "Welcome, " + user.email;
+    document.getElementById('output').innerText = user.email;
   }
 });
 
