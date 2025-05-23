@@ -11,7 +11,17 @@ const firebaseConfig = {
   measurementId: "G-N20TE0F9VT"
 };
 
-const app = initializeApp(firebaseConfig);
+let app;
+try {
+    app = initializeApp(firebaseConfig);
+} catch (err) {
+    if (err.code === 'app/duplicate-app') {
+        app = getApp();
+    } else {
+        throw err;
+    }
+}
+
 const auth = getAuth(app);
 
 document.getElementById('signup').onclick = () => {
