@@ -26,7 +26,17 @@ const firebaseConfig = {
     measurementId: "G-N20TE0F9VT"
 };
 
-const app = initializeApp(firebaseConfig);
+let app;
+try {
+    app = initializeApp(firebaseConfig);
+} catch (err) {
+    if (err.code === 'app/duplicate-app') {
+        app = getApp();
+    } else {
+        console.error("Firebase initialization error", err);
+        throw err;
+    }
+}
 const auth = getAuth(app);
 const db = getFirestore(app);
 
