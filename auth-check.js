@@ -1,7 +1,4 @@
-import { 
-    initializeApp, 
-    getApp  // Add this import
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { 
     getAuth, 
     createUserWithEmailAndPassword, 
@@ -29,45 +26,29 @@ const firebaseConfig = {
     measurementId: "G-N20TE0F9VT"
 };
 
-let app;
-try {
-    app = initializeApp(firebaseConfig);
-} catch (err) {
-    if (err.code === 'app/duplicate-app') {
-        app = getApp();
-    } else {
-        console.error("Firebase initialization error", err);
-        throw err;
-    }
-}
+// Initialize Firebase only once
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Authentication functions
-window.authFunctions = {
-    signUp: (email, password) => {
-        return createUserWithEmailAndPassword(auth, email, password);
-    },
-    logIn: (email, password) => {
-        return signInWithEmailAndPassword(auth, email, password);
-    },
-    logOut: () => {
-        return signOut(auth);
-    }
+// Export the initialized services
+export { auth, db, app };
+
+// Export auth functions
+export const authFunctions = {
+    signUp: (email, password) => createUserWithEmailAndPassword(auth, email, password),
+    logIn: (email, password) => signInWithEmailAndPassword(auth, email, password),
+    logOut: () => signOut(auth)
 };
 
-// Firestore functions
-window.firestoreFunctions = {
+// Export firestore functions
+export const firestoreFunctions = {
     saveStudyPlan: async (userId, formData, generatedHTML) => {
         try {
             const docRef = await addDoc(collection(db, "studyPlans"), {
-                userId: userId,
-                class: formData.class,
-                subject: formData.subject,
-                lesson: formData.lesson,
-                days: formData.days,
-                hoursPerDay: formData.hoursPerDay || null,
-                generatedHTML: generatedHTML,
+                userId,
+                ...formData,
+                generatedHTML,
                 createdAt: serverTimestamp()
             });
             return docRef.id;
@@ -87,11 +68,6 @@ window.firestoreFunctions = {
 };
 
 // Auth state listener
-onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        // Not logged in - redirect handled by your auth.html page
-        return;
-    }
-    // User is logged in, you can load their data here if needed
-    window.currentUser = user;
+onAuthStateChanged(auth, (user) => {
+    window.currentUser = user || null;
 });
