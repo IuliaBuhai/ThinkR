@@ -262,3 +262,19 @@ function simpleFallbackPlan(formData) {
         </div>
     `;
 }
+
+// Helper function to translate Firebase errors to Romanian
+function getRomanianErrorMessage(errorCode) {
+    const messages = {
+        'auth/email-already-in-use': 'Acest email este deja înregistrat.',
+        'auth/invalid-email': 'Adresa de email este invalidă.',
+        'auth/operation-not-allowed': 'Operația nu este permisă.',
+        'auth/weak-password': 'Parola este prea slabă (minim 8 caractere).',
+        'auth/user-disabled': 'Contul a fost dezactivat.',
+        'auth/user-not-found': 'Nu există un cont asociat acestui email.',
+        'auth/wrong-password': 'Parolă incorectă.',
+        'auth/too-many-requests': 'Prea multe încercări. Încearcă mai târziu.'
+    };
+    
+    return messages[errorCode] || 'A apărut o eroare. Te rugăm să încerci din nou.';
+}
