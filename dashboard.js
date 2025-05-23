@@ -2,43 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = {import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-async function showUserData(user) {
-  const userDocRef = doc(db, "users", user.uid);
-  const userDocSnap = await getDoc(userDocRef);
-
-  const outputDiv = document.getElementById("output");
-
-  if (userDocSnap.exists()) {
-    const data = userDocSnap.data();
-
-    // Example: Display data fields nicely instead of raw JSON
-    outputDiv.innerHTML = ""; // clear previous content
-
-    for (const [key, value] of Object.entries(data)) {
-      const p = document.createElement("p");
-      p.textContent = `${key}: ${value}`;
-      outputDiv.appendChild(p);
-    }
-  } else {
-    outputDiv.textContent = "No data found for this user.";
-  }
-}
-
-onAuthStateChanged(auth, user => {
-  const outputDiv = document.getElementById("output");
-  if (user) {
-    showUserData(user).catch(err => {
-      outputDiv.textContent = "Error loading data: " + err.message;
-      console.error(err);
-    });
-  } else {
-    outputDiv.textContent = "Please log in to view your data.";
-  }
-});
-
+const firebaseConfig = {
   apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
   authDomain: "thinkr-298dd.firebaseapp.com",
   projectId: "thinkr-298dd",
@@ -75,29 +39,39 @@ document.getElementById('logout').onclick = () => {
   });
 };
 
-async function showUserData() {
-  const user = auth.currentUser;
-  if (!user) {
-    document.getElementById("output").textContent = "You need to be logged in to see data.";
-    return;
-  }
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+async function showUserData(user) {
   const userDocRef = doc(db, "users", user.uid);
   const userDocSnap = await getDoc(userDocRef);
 
+  const outputDiv = document.getElementById("output");
+
   if (userDocSnap.exists()) {
     const data = userDocSnap.data();
-    document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+
+    // Example: Display data fields nicely instead of raw JSON
+    outputDiv.innerHTML = ""; // clear previous content
+
+    for (const [key, value] of Object.entries(data)) {
+      const p = document.createElement("p");
+      p.textContent = `${key}: ${value}`;
+      outputDiv.appendChild(p);
+    }
   } else {
-    document.getElementById("output").textContent = "No data found for this user.";
+    outputDiv.textContent = "No data found for this user.";
   }
 }
 
-// Call this function after user is logged in and auth is ready
 onAuthStateChanged(auth, user => {
+  const outputDiv = document.getElementById("output");
   if (user) {
-    showUserData();
+    showUserData(user).catch(err => {
+      outputDiv.textContent = "Error loading data: " + err.message;
+      console.error(err);
+    });
   } else {
-    document.getElementById("output").textContent = "Please log in to view your data.";
+    outputDiv.textContent = "Please log in to view your data.";
   }
 });
