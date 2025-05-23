@@ -234,20 +234,13 @@
         </div>
     </div>
 
-    <script type="module">
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            query, 
-            where, 
-            getDocs,
-            orderBy,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        
-        // Initialize Firebase
+    <!-- Import Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+    <script>
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
             authDomain: "thinkr-298dd.firebaseapp.com",
@@ -258,9 +251,10 @@
             measurementId: "G-N20TE0F9VT"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.getAuth(app);
+        const db = firebase.getFirestore(app);
 
         // Timer variables
         let startTime;
@@ -288,7 +282,7 @@
         subjectSelect.addEventListener('change', handleSubjectChange);
 
         // Check auth state
-        onAuthStateChanged(auth, (user) => {
+        firebase.onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserId = user.uid;
                 loadStudySessions();
@@ -313,7 +307,7 @@
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 subjectSelect.disabled = true;
-                customSubject.disabled = true;
+                if (customSubject) customSubject.disabled = true;
             }
         }
 
@@ -324,7 +318,7 @@
                 startBtn.disabled = false;
                 stopBtn.disabled = true;
                 subjectSelect.disabled = false;
-                customSubject.disabled = false;
+                if (customSubject) customSubject.disabled = false;
                 
                 // Save the session to database
                 saveStudySession();
@@ -339,7 +333,7 @@
             startBtn.disabled = false;
             stopBtn.disabled = true;
             subjectSelect.disabled = false;
-            customSubject.disabled = false;
+            if (customSubject) customSubject.disabled = false;
             timerError.textContent = "";
         }
 
@@ -350,8 +344,8 @@
 
         function updateDisplay() {
             const seconds = Math.floor((elapsedTime / 1000) % 60);
-            const minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
-            const hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((elapsedTime / (1000 * 60)) % 60;
+            const hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 24;
             
             timerDisplay.textContent = 
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -382,11 +376,11 @@
             const durationInMinutes = Math.round(duration / 60000); // convert to minutes
             
             try {
-                await addDoc(collection(db, "studySessions"), {
+                await firebase.addDoc(firebase.collection(db, "studySessions"), {
                     userId: currentUserId,
                     subject,
                     duration: durationInMinutes,
-                    date: serverTimestamp()
+                    date: firebase.serverTimestamp()
                 });
                 loadStudySessions();
             } catch (error) {
@@ -399,13 +393,13 @@
             if (!currentUserId) return;
             
             try {
-                const q = query(
-                    collection(db, "studySessions"),
-                    where("userId", "==", currentUserId),
-                    orderBy("date", "desc")
+                const q = firebase.query(
+                    firebase.collection(db, "studySessions"),
+                    firebase.where("userId", "==", currentUserId),
+                    firebase.orderBy("date", "desc")
                 );
                 
-                const querySnapshot = await getDocs(q);
+                const querySnapshot = await firebase.getDocs(q);
                 
                 if (querySnapshot.empty) {
                     historyList.innerHTML = '<div class="loading">Nu ai nicio sesiune înregistrată</div>';
@@ -446,7 +440,7 @@
         // Logout function
         async function handleLogout() {
             try {
-                await signOut(auth);
+                await firebase.signOut(auth);
                 window.location.href = 'auth.html';
             } catch (error) {
                 console.error("Logout error: ", error);
