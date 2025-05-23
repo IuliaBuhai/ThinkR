@@ -2,7 +2,43 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = {
+const firebaseConfig = {import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+async function showUserData(user) {
+  const userDocRef = doc(db, "users", user.uid);
+  const userDocSnap = await getDoc(userDocRef);
+
+  const outputDiv = document.getElementById("output");
+
+  if (userDocSnap.exists()) {
+    const data = userDocSnap.data();
+
+    // Example: Display data fields nicely instead of raw JSON
+    outputDiv.innerHTML = ""; // clear previous content
+
+    for (const [key, value] of Object.entries(data)) {
+      const p = document.createElement("p");
+      p.textContent = `${key}: ${value}`;
+      outputDiv.appendChild(p);
+    }
+  } else {
+    outputDiv.textContent = "No data found for this user.";
+  }
+}
+
+onAuthStateChanged(auth, user => {
+  const outputDiv = document.getElementById("output");
+  if (user) {
+    showUserData(user).catch(err => {
+      outputDiv.textContent = "Error loading data: " + err.message;
+      console.error(err);
+    });
+  } else {
+    outputDiv.textContent = "Please log in to view your data.";
+  }
+});
+
   apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
   authDomain: "thinkr-298dd.firebaseapp.com",
   projectId: "thinkr-298dd",
