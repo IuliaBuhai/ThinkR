@@ -19,6 +19,11 @@
         .schimba-formular:hover {
             text-decoration: underline;
         }
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -31,7 +36,7 @@
                     <p class="subtitlu-autentificare">Autentifică-te în contul tău</p>
                 </header>
                 
-                <form id="formularLogin" class="form-container" aria-label="Formular autentificare">
+                <form id="formularLogin" class="form-container">
                     <div class="grup-formular">
                         <label for="emailAutentificare">Adresă de email</label>
                         <input 
@@ -58,6 +63,8 @@
                         <a href="/parola-uitata" class="parola-uitata">Ai uitat parola?</a>
                     </div>
                     
+                    <div id="loginError" class="error-message"></div>
+                    
                     <div class="actiuni-formular">
                         <button type="submit" class="btn btn-primar">Autentifică-te</button>
                     </div>
@@ -75,7 +82,7 @@
                     <p class="subtitlu-autentificare">Alătură-te comunității noastre</p>
                 </header>
                 
-                <form id="formularSignup" class="form-container" aria-label="Formular înregistrare">
+                <form id="formularSignup" class="form-container">
                     <div class="grup-formular">
                         <label for="numeInregistrare">Nume complet</label>
                         <input 
@@ -126,6 +133,8 @@
                             minlength="8">
                     </div>
                     
+                    <div id="signupError" class="error-message"></div>
+                    
                     <div class="actiuni-formular">
                         <button type="submit" class="btn btn-primar">Înregistrează-te</button>
                     </div>
@@ -142,11 +151,18 @@
         function arataFormularAutentificare() {
             document.getElementById('formularAutentificare').classList.add('active');
             document.getElementById('formularInregistrare').classList.remove('active');
+            clearErrors();
         }
 
         function arataFormularInregistrare() {
             document.getElementById('formularInregistrare').classList.add('active');
             document.getElementById('formularAutentificare').classList.remove('active');
+            clearErrors();
+        }
+
+        function clearErrors() {
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('signupError').textContent = '';
         }
     </script>
 </body>
