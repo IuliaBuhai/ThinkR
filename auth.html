@@ -1,21 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <meta name="description" content="Pagina de autentificare și înregistrare">
+    <title>Autentificare | Înregistrare</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="app.js" defer></script>
+    <style>
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .schimba-formular { 
+            text-align: center; 
+            margin: 1rem 0;
+            cursor: pointer;
+            color: #0066cc;
+        }
+        .schimba-formular:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <div class="auth-container">
-        <h1>Login</h1>
-        <form id="authForm">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="button" id="login">Login</button>
-            <button type="button" id="signup">Sign Up</button>
-        </form>
-    </div>
+    <main class="pagina-autentificare">
+        <div class="container-autentificare">
+            <!-- Formular Autentificare -->
+            <div id="formularAutentificare" class="auth-form active">
+                <header class="antet-autentificare">
+                    <h1>Bine ai revenit!</h1>
+                    <p class="subtitlu-autentificare">Autentifică-te în contul tău</p>
+                </header>
+                
+                <form id="formularLogin" class="form-container" aria-label="Formular autentificare">
+                    <div class="grup-formular">
+                        <label for="emailAutentificare">Adresă de email</label>
+                        <input 
+                            type="email" 
+                            id="emailAutentificare" 
+                            name="email"
+                            placeholder="email@domeniu.com" 
+                            required
+                            autocomplete="email"
+                            aria-required="true">
+                    </div>
+                    
+                    <div class="grup-formular">
+                        <label for="parolaAutentificare">Parolă</label>
+                        <input 
+                            type="password" 
+                            id="parolaAutentificare" 
+                            name="parola"
+                            placeholder="Introdu parola" 
+                            required
+                            autocomplete="current-password"
+                            aria-required="true"
+                            minlength="8">
+                        <a href="/parola-uitata" class="parola-uitata">Ai uitat parola?</a>
+                    </div>
+                    
+                    <div class="actiuni-formular">
+                        <button type="submit" class="btn btn-primar">Autentifică-te</button>
+                    </div>
+                </form>
+                
+                <div class="schimba-formular" onclick="arataFormularInregistrare()">
+                    Nu ai cont? <span>Înregistrează-te</span>
+                </div>
+            </div>
+
+            <!-- Formular Înregistrare -->
+            <div id="formularInregistrare" class="auth-form">
+                <header class="antet-autentificare">
+                    <h1>Creează cont nou</h1>
+                    <p class="subtitlu-autentificare">Alătură-te comunității noastre</p>
+                </header>
+                
+                <form id="formularSignup" class="form-container" aria-label="Formular înregistrare">
+                    <div class="grup-formular">
+                        <label for="numeInregistrare">Nume complet</label>
+                        <input 
+                            type="text" 
+                            id="numeInregistrare" 
+                            name="nume"
+                            placeholder="Numele tău complet" 
+                            required
+                            autocomplete="name"
+                            aria-required="true">
+                    </div>
+
+                    <div class="grup-formular">
+                        <label for="emailInregistrare">Adresă de email</label>
+                        <input 
+                            type="email" 
+                            id="emailInregistrare" 
+                            name="email"
+                            placeholder="email@domeniu.com" 
+                            required
+                            autocomplete="email"
+                            aria-required="true">
+                    </div>
+                    
+                    <div class="grup-formular">
+                        <label for="parolaInregistrare">Parolă</label>
+                        <input 
+                            type="password" 
+                            id="parolaInregistrare" 
+                            name="parola"
+                            placeholder="Creează o parolă (minim 8 caractere)" 
+                            required
+                            autocomplete="new-password"
+                            aria-required="true"
+                            minlength="8">
+                    </div>
+
+                    <div class="grup-formular">
+                        <label for="confirmaParola">Confirmă parola</label>
+                        <input 
+                            type="password" 
+                            id="confirmaParola" 
+                            name="confirmaParola"
+                            placeholder="Reintrodu parola" 
+                            required
+                            autocomplete="new-password"
+                            aria-required="true"
+                            minlength="8">
+                    </div>
+                    
+                    <div class="actiuni-formular">
+                        <button type="submit" class="btn btn-primar">Înregistrează-te</button>
+                    </div>
+                </form>
+                
+                <div class="schimba-formular" onclick="arataFormularAutentificare()">
+                    Ai deja cont? <span>Autentifică-te</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function arataFormularAutentificare() {
+            document.getElementById('formularAutentificare').classList.add('active');
+            document.getElementById('formularInregistrare').classList.remove('active');
+        }
+
+        function arataFormularInregistrare() {
+            document.getElementById('formularInregistrare').classList.add('active');
+            document.getElementById('formularAutentificare').classList.remove('active');
+        }
+    </script>
 </body>
 </html>
