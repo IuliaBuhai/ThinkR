@@ -238,7 +238,7 @@ async function generateStudyPlanHTML(formData) {
         : '';
     
     // Create the prompt for OpenAI
-    const prompt = `Crează un plan detaliat de studiu pentruȘ
+    const prompt = `Crează un plan detaliat de studiu pentru:
     - Clasa: ${formData.class}
     - Materia: ${formData.subject}
     - Lecția: ${formData.lesson}
@@ -247,8 +247,8 @@ async function generateStudyPlanHTML(formData) {
         Planul trebuie să includă:
         1. Detalierea zilnică a subiectelor de abordat
         2. Tehnici de studiu sugerate
-        3. Resurse recomandate
-        4. Exerciții practice
+        3. Resurse recomandate cu denumiri de cărți școlare sau populare
+        4. Exerciții practice - și grele și ușoare 
 
         Formatați răspunsul în HTML cu titluri și liste adecvate.`;
     
