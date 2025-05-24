@@ -32,6 +32,12 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+
+let timerInterval = null;
+let startTime = null;
+let currentSubject = null;
+
+
 // Track current user
 let currentUser = null;
 
@@ -227,6 +233,196 @@ async function loadPreviousPlans(userId) {
         document.getElementById('plansList').innerHTML = '<p>Error loading plans</p>';
     }
 }
+
+
+// Study Tracker Functions
+function setupStudyTracker() {
+    const startBtn = document.getElementById('startStudy');
+    const stopBtn = document.getElementById('stopStudy');
+    const subjectSelect = document.getElementById('studySubject');
+    const timerDisplay = document.getElementById('studyTimer');
+
+    if (!startBtn || !stopBtn || !subjectSelect || !timerDisplay) return;
+
+    // Romanian school subjects
+    const romanianSubjects = [
+        "Matematică",
+        "Limba Română",
+        "Limba Engleză",
+        "Limba Franceză",
+        "Fizică",
+        "Chimie",
+        "Biologie",
+        "Istorie",
+        "Geografie",
+        "Informatică",
+        "Educație Fizică",
+        "Educație Civică",
+        "Filozofie",
+        "Logica",
+        "Economie",
+        "Psihologie",
+        "Sociologie",
+        "Religie",
+        "Alte Materii"
+    ];
+
+    // Populate subject dropdown
+    romanianSubjects.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        subjectSelect.appendChild(option);
+    });
+
+    startBtn.addEventListener('click', () => {
+        currentSubject = subjectSelect.value;
+        if (!currentSubject) {
+            alert('Selectează o materie înainte de a începe!');
+            return;
+        }
+
+        startTime = new Date();
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        subjectSelect.disabled = true;
+
+        // Update timer every second
+        timerInterval = setInterval(() => {
+            const now = new Date();
+            const elapsed = Math.floor((now - startTime) / 1000);
+            const hours = Math.floor(elapsed / 3600);
+            const minutes = Math.floor((elapsed % 3600) / 60);
+            const seconds = elapsed % 60;
+            
+            timerDisplay.textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    });
+
+    stopBtn.addEventListener('click', async () => {
+        if (!timerInterval) return;
+        
+        clearInterval(timerInterval);
+        timerInterval = null;
+        
+        const endTime = new Date();
+        const durationInSeconds = Math.floor((endTime - startTime) / 1000);
+        
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        subjectSelect.disabled = false;
+        
+        if (currentUser) {
+            try {
+                await saveStudySession(
+                    currentUser.uid,
+                    currentSubject,
+                    startTime,
+                    endTime,
+                    durationInSeconds
+                );
+                alert(`Sesiunea de studiu pentru ${currentSubject} a fost salvată!`);
+                loadStudyHistory(currentUser.uid);
+            } catch (error) {
+                console.error("Error saving study session:", error);
+                alert("Eroare la salvarea sesiunii. Vezi consola pentru detalii.");
+            }
+        } else {
+            alert("Trebuie să fii autentificat pentru a salva sesiunile de studiu!");
+        }
+        
+        timerDisplay.textContent = "00:00:00";
+    });
+}
+
+async function saveStudySession(userId, subject, startTime, endTime, durationInSeconds) {
+    try {
+        await addDoc(collection(db, "studySessions"), {
+            userId,
+            subject,
+            startTime,
+            endTime,
+            durationInSeconds,
+            createdAt: serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Error saving study session:", error);
+        throw error;
+    }
+}
+
+// Study History Functions
+function setupStudyHistory() {
+    // You can add any initialization needed for the history section here
+}
+
+async function loadStudyHistory(userId) {
+    try {
+        const historyContainer = document.getElementById('studyHistory');
+        if (!historyContainer) return;
+        
+        historyContainer.innerHTML = '<p>Se încarcă istoricul...</p>';
+        
+        const q = query(
+            collection(db, "studySessions"), 
+            where("userId", "==", userId),
+            orderBy("startTime", "desc")
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            historyContainer.innerHTML = '<p>Nu ai nicio sesiune de studiu înregistrată.</p>';
+            return;
+        }
+        
+        let historyHTML = `
+            <table class="study-history-table">
+                <thead>
+                    <tr>
+                        <th>Materie</th>
+                        <th>Dată</th>
+                        <th>Ora început</th>
+                        <th>Ora sfârșit</th>
+                        <th>Durată</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        querySnapshot.forEach((doc) => {
+            const session = doc.data();
+            const startDate = session.startTime.toDate();
+            const endDate = session.endTime.toDate();
+            
+            const durationHours = Math.floor(session.durationInSeconds / 3600);
+            const durationMinutes = Math.floor((session.durationInSeconds % 3600) / 60);
+            const durationSeconds = session.durationInSeconds % 60;
+            
+            historyHTML += `
+                <tr>
+                    <td>${session.subject}</td>
+                    <td>${startDate.toLocaleDateString('ro-RO')}</td>
+                    <td>${startDate.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td>${endDate.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td>${durationHours.toString().padStart(2, '0')}:${durationMinutes.toString().padStart(2, '0')}:${durationSeconds.toString().padStart(2, '0')}</td>
+                </tr>
+            `;
+        });
+        
+        historyHTML += `
+                </tbody>
+            </table>
+        `;
+        
+        historyContainer.innerHTML = historyHTML;
+    } catch (error) {
+        console.error("Error loading study history:", error);
+        document.getElementById('studyHistory').innerHTML = '<p>Eroare la încărcarea istoricului.</p>';
+    }
+}
+
 
 // OpenAI Integration (replace with your actual implementation)
 async function generateStudyPlanHTML(formData) {
