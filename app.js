@@ -164,7 +164,7 @@ function setupStudyPlanForm() {
                 await saveStudyPlan(currentUser.uid, formData, generatedHTML);
                 await loadPreviousPlans(currentUser.uid);
             } else {
-                alert("You must be logged in to save plans");
+                alert("Trebuie să fi conectat ca să poți genera planuri");
             }
         } catch (error) {
             console.error("Error:", error);
@@ -238,19 +238,19 @@ async function generateStudyPlanHTML(formData) {
         : '';
     
     // Create the prompt for OpenAI
-    const prompt = `Create a detailed study plan for:
-    - Class: ${formData.class}
-    - Subject: ${formData.subject}
-    - Lesson: ${formData.lesson}
-    - Duration: ${formData.days} days ${hoursText}
+    const prompt = `Crează un plan detaliat de studiu pentruȘ
+    - Clasa: ${formData.class}
+    - Materia: ${formData.subject}
+    - Lecția: ${formData.lesson}
+    - Durată: ${formData.days} zile ${hoursText}
     
-    The plan should include:
-    1. Daily breakdown of topics to cover
-    2. Suggested study techniques
-    3. Recommended resources
-    4. Practice exercises
-    
-    Format the response in HTML with proper headings and lists.`;
+        Planul trebuie să includă:
+        1. Detalierea zilnică a subiectelor de abordat
+        2. Tehnici de studiu sugerate
+        3. Resurse recomandate
+        4. Exerciții practice
+
+        Formatați răspunsul în HTML cu titluri și liste adecvate.`;
     
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -283,11 +283,11 @@ async function generateStudyPlanHTML(formData) {
         // Wrap in a div for styling
         return `
             <div class="study-plan">
-                <h2>Study Plan for ${formData.subject} - ${formData.lesson}</h2>
-                <p><strong>Class:</strong> ${formData.class}</p>
-                <p><strong>Duration:</strong> ${formData.days} days ${hoursText}</p>
+                <h2>Plan de studiu pentru ${formData.subject} - ${formData.lesson}</h2>
+                <p><strong>Clasa:</strong> ${formData.class}</p>
+                <p><strong>Durata:</strong> ${formData.days} zile ${hoursText}</p>
                 ${generatedContent}
-                <p><em>Plan generated on ${new Date().toLocaleDateString()}</em></p>
+                <p><em>Plan generat la data de ${new Date().toLocaleDateString()}</em></p>
             </div>
         `;
     } catch (error) {
