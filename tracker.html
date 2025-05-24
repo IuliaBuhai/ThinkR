@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Tracker | Thinkr</title>
-    <!-- Firebase CDN -->
+    <title>Study TrackeR | Thinkr</title>
+    <!-- Firebase CDN approach -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="styles.css">
+
+     
     <style>
         :root {
             --primary: #4361ee;
@@ -193,264 +196,28 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Study Tracker</h1>
-            <button id="logoutBtn" class="logout-btn">Deconectează-te</button>
-        </header>
-
-        <div class="tracker-container">
-            <div class="timer-card">
-                <h2>Cronometru Studiu</h2>
-                <div class="subject-selection">
-                    <select id="subjectSelect" required>
-                        <option value="" disabled selected>Selectează materia</option>
-                        <option value="Matematică">Matematică</option>
-                        <option value="Informatică">Informatică</option>
-                        <option value="Fizică">Fizică</option>
-                        <option value="Chimie">Chimie</option>
-                        <option value="Biologie">Biologie</option>
-                        <option value="Istorie">Istorie</option>
-                        <option value="Engleză">Engleză</option>
-                        <option value="Altele">Altele</option>
-                    </select>
-                    <input type="text" id="customSubject" placeholder="Sau introdu altă materie" style="display: none;">
-                </div>
-                
-                <div class="timer-display" id="timerDisplay">00:00:00</div>
-                
-                <div class="timer-controls">
-                    <button id="startBtn" class="timer-btn start-btn">Start</button>
-                    <button id="stopBtn" class="timer-btn stop-btn" disabled>Stop</button>
-                    <button id="resetBtn" class="timer-btn reset-btn">Reset</button>
-                </div>
-                
-                <div id="timerError" class="error-message"></div>
-            </div>
-
-            <div class="history-card">
-                <h2>Istoric Studiu</h2>
-                <div class="history-list" id="historyList">
-                    <div class="loading">Se încarcă istoricul...</div>
-                </div>
-            </div>
-        </div>
+    <!-- Study Tracker Section -->
+<div class="study-tracker">
+    <h2>Urmărire Studiu</h2>
+    <div class="tracker-controls">
+        <select id="studySubject">
+            <option value="">Selectează materia...</option>
+            <!-- Options will be added by JavaScript -->
+        </select>
+        <button id="startStudy">Începe Studiu</button>
+        <button id="stopStudy" disabled>Oprește Studiu</button>
     </div>
+    <div class="timer-display">
+        <span id="studyTimer">00:00:00</span>
+    </div>
+</div>
 
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
-            authDomain: "thinkr-298dd.firebaseapp.com",
-            projectId: "thinkr-298dd",
-            storageBucket: "thinkr-298dd.appspot.com",
-            messagingSenderId: "1087091426997",
-            appId: "1:1087091426997:web:4e080caec0181377aa60fc",
-            measurementId: "G-N20TE0F9VT"
-        };
-
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.getAuth(app);
-        const db = firebase.getFirestore(app);
-
-        // Timer variables
-        let startTime;
-        let elapsedTime = 0;
-        let timerInterval;
-        let isRunning = false;
-        let currentUserId = null;
-
-        // DOM elements
-        const timerDisplay = document.getElementById('timerDisplay');
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const subjectSelect = document.getElementById('subjectSelect');
-        const customSubject = document.getElementById('customSubject');
-        const historyList = document.getElementById('historyList');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const timerError = document.getElementById('timerError');
-
-        // Initialize the app
-        init();
-
-        function init() {
-            // Event listeners
-            startBtn.addEventListener('click', startTimer);
-            stopBtn.addEventListener('click', stopTimer);
-            stopBtn.disabled = true;
-            resetBtn.addEventListener('click', resetTimer);
-            logoutBtn.addEventListener('click', handleLogout);
-            subjectSelect.addEventListener('change', handleSubjectChange);
-
-            // Check auth state
-            firebase.onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUserId = user.uid;
-                    loadStudySessions();
-                } else {
-                    window.location.href = 'auth.html';
-                }
-            });
-        }
-
-        // Timer functions
-        function startTimer() {
-            const subject = getSelectedSubject();
-            if (!subject) {
-                timerError.textContent = "Selectează o materie pentru a începe";
-                return;
-            }
-            timerError.textContent = "";
-            
-            if (!isRunning) {
-                startTime = Date.now() - elapsedTime;
-                timerInterval = setInterval(updateTimer, 1000);
-                isRunning = true;
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                subjectSelect.disabled = true;
-                if (customSubject) customSubject.disabled = true;
-            }
-        }
-
-        function stopTimer() {
-            if (isRunning) {
-                clearInterval(timerInterval);
-                isRunning = false;
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-                subjectSelect.disabled = false;
-                if (customSubject) customSubject.disabled = false;
-                
-                // Save the session to database
-                saveStudySession();
-            }
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            isRunning = false;
-            elapsedTime = 0;
-            updateDisplay();
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            subjectSelect.disabled = false;
-            if (customSubject) customSubject.disabled = false;
-            timerError.textContent = "";
-        }
-
-        function updateTimer() {
-            elapsedTime = Date.now() - startTime;
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            const totalSeconds = Math.floor(elapsedTime / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            
-            timerDisplay.textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function getSelectedSubject() {
-            if (subjectSelect.value === "Altele" && customSubject.value.trim() !== "") {
-                return customSubject.value.trim();
-            } else if (subjectSelect.value && subjectSelect.value !== "Altele") {
-                return subjectSelect.value;
-            }
-            return null;
-        }
-
-        function handleSubjectChange() {
-            if (subjectSelect.value === "Altele") {
-                customSubject.style.display = "block";
-            } else {
-                customSubject.style.display = "none";
-                customSubject.value = "";
-            }
-        }
-
-        // Firestore functions
-        async function saveStudySession() {
-            const subject = getSelectedSubject();
-            const duration = elapsedTime; // in milliseconds
-            const durationInMinutes = Math.round(duration / 60000); // convert to minutes
-            
-            try {
-                await firebase.addDoc(firebase.collection(db, "studySessions"), {
-                    userId: currentUserId,
-                    subject,
-                    duration: durationInMinutes,
-                    date: firebase.serverTimestamp()
-                });
-                loadStudySessions();
-            } catch (error) {
-                console.error("Error saving session: ", error);
-                timerError.textContent = "Eroare la salvarea sesiunii";
-            }
-        }
-
-        async function loadStudySessions() {
-            if (!currentUserId) return;
-            
-            try {
-                const q = firebase.query(
-                    firebase.collection(db, "studySessions"),
-                    firebase.where("userId", "==", currentUserId),
-                    firebase.orderBy("date", "desc")
-                );
-                
-                const querySnapshot = await firebase.getDocs(q);
-                
-                if (querySnapshot.empty) {
-                    historyList.innerHTML = '<div class="loading">Nu ai nicio sesiune înregistrată</div>';
-                    return;
-                }
-                
-                historyList.innerHTML = '';
-                querySnapshot.forEach((doc) => {
-                    const session = doc.data();
-                    const sessionElement = document.createElement('div');
-                    sessionElement.className = 'study-session';
-                    
-                    const date = session.date?.toDate() || new Date();
-                    const formattedDate = date.toLocaleDateString('ro-RO', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    
-                    sessionElement.innerHTML = `
-                        <div>
-                            <span class="session-subject">${session.subject}</span>
-                            <div class="session-date">${formattedDate}</div>
-                        </div>
-                        <div class="session-duration">${session.duration} min</div>
-                    `;
-                    
-                    historyList.appendChild(sessionElement);
-                });
-            } catch (error) {
-                console.error("Error loading sessions: ", error);
-                historyList.innerHTML = '<div class="error-message">Eroare la încărcarea istoricului</div>';
-            }
-        }
-
-        // Logout function
-        async function handleLogout() {
-            try {
-                await firebase.signOut(auth);
-                window.location.href = 'auth.html';
-            } catch (error) {
-                console.error("Logout error: ", error);
-            }
-        }
-    </script>
+<!-- Study History Section -->
+<div class="study-history">
+    <h2>Istoric Studiu</h2>
+    <div id="studyHistory">
+        <!-- History will be loaded here -->
+    </div>
+</div>
 </body>
 </html>
