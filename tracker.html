@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study TrackeR | Thinkr</title>
-    <!-- Firebase CDN approach -->
+    <!-- Firebase CDN -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
     <link rel="stylesheet" href="styles.css">
-
-     
     <style>
         :root {
             --primary: #4361ee;
@@ -30,10 +28,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
             background-color: #f5f7ff;
             color: var(--text);
             line-height: 1.6;
@@ -52,11 +50,12 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
-        h1 {
+        h1, h2 {
             color: var(--primary);
-            font-size: 28px;
+            margin-bottom: 20px;
         }
 
         .logout-btn {
@@ -74,55 +73,30 @@
             background-color: #d90429;
         }
 
-        .tracker-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .tracker-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .timer-card, .history-card {
+        .study-tracker, .study-history {
             background-color: white;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             padding: 30px;
+            margin-bottom: 30px;
         }
 
-        .timer-display {
-            font-size: 48px;
-            text-align: center;
-            margin: 20px 0;
-            font-family: monospace;
-            color: var(--text);
-        }
-
-        .subject-selection {
-            margin-bottom: 20px;
-        }
-
-        .subject-selection select, 
-        .subject-selection input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            font-size: 15px;
-            margin-bottom: 10px;
-            background-color: var(--light);
-        }
-
-        .timer-controls {
+        .tracker-controls {
             display: flex;
             gap: 10px;
-            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        .timer-btn {
+        #studySubject {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+        }
+
+        #startStudy, #stopStudy {
             padding: 12px 24px;
             border: none;
             border-radius: var(--border-radius);
@@ -131,55 +105,64 @@
             transition: var(--transition);
         }
 
-        .start-btn {
+        #startStudy {
             background-color: var(--success);
             color: white;
         }
 
-        .stop-btn {
+        #stopStudy {
             background-color: var(--danger);
             color: white;
         }
 
-        .reset-btn {
-            background-color: var(--gray);
-            color: white;
-        }
-
-        .timer-btn:hover {
+        #startStudy:hover, #stopStudy:hover {
             transform: translateY(-2px);
             box-shadow: var(--box-shadow);
         }
 
-        .history-list {
-            margin-top: 20px;
-            max-height: 500px;
-            overflow-y: auto;
+        .timer-display {
+            font-size: 3rem;
+            text-align: center;
+            margin: 20px 0;
+            font-family: monospace;
+            color: var(--text);
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
         }
 
-        .study-session {
+        #studyHistory {
+            margin-top: 20px;
+        }
+
+        .session-item {
             padding: 15px;
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
-        .study-session:last-child {
+        .session-item:last-child {
             border-bottom: none;
         }
 
+        .session-info {
+            flex: 1;
+        }
+
         .session-subject {
-            font-weight: 500;
+            font-weight: 600;
             color: var(--primary);
         }
 
         .session-duration {
-            color: var(--text);
+            font-weight: 500;
         }
 
         .session-date {
             color: var(--gray);
-            font-size: 13px;
+            font-size: 0.9rem;
         }
 
         .loading {
@@ -193,31 +176,268 @@
             text-align: center;
             margin: 10px 0;
         }
+
+        @media (max-width: 768px) {
+            .tracker-controls {
+                flex-direction: column;
+            }
+            
+            #studySubject, #startStudy, #stopStudy {
+                width: 100%;
+            }
+            
+            .timer-display {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Study Tracker Section -->
-<div class="study-tracker">
-    <h2>Urmărire Studiu</h2>
-    <div class="tracker-controls">
-        <select id="studySubject">
-            <option value="">Selectează materia...</option>
-            <!-- Options will be added by JavaScript -->
-        </select>
-        <button id="startStudy">Începe Studiu</button>
-        <button id="stopStudy" disabled>Oprește Studiu</button>
-    </div>
-    <div class="timer-display">
-        <span id="studyTimer">00:00:00</span>
-    </div>
-</div>
+    <div class="container">
+        <header>
+            <h1>Thinkr - TrackeR Studiu</h1>
+            <button id="logout" class="logout-btn">Deconectare</button>
+        </header>
 
-<!-- Study History Section -->
-<div class="study-history">
-    <h2>Istoric Studiu</h2>
-    <div id="studyHistory">
-        <!-- History will be loaded here -->
+        <!-- Study Tracker Section -->
+        <div class="study-tracker">
+            <h2>Urmărire Studiu</h2>
+            <div class="tracker-controls">
+                <select id="studySubject">
+                    <option value="">Selectează materia...</option>
+                    <!-- Options will be added by JavaScript -->
+                </select>
+                <button id="startStudy">Începe Studiu</button>
+                <button id="stopStudy" disabled>Oprește Studiu</button>
+            </div>
+            <div class="timer-display">
+                <span id="studyTimer">00:00:00</span>
+            </div>
+        </div>
+
+        <!-- Study History Section -->
+        <div class="study-history">
+            <h2>Istoric Studiu</h2>
+            <div id="studyHistory">
+                <div class="loading">Se încarcă istoricul...</div>
+            </div>
+        </div>
     </div>
-</div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
+            authDomain: "thinkr-298dd.firebaseapp.com",
+            projectId: "thinkr-298dd",
+            storageBucket: "thinkr-298dd.appspot.com",
+            messagingSenderId: "1087091426997",
+            appId: "1:1087091426997:web:4e080caec0181377aa60fc",
+            measurementId: "G-N20TE0F9VT"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global variables
+        let timerInterval = null;
+        let startTime = null;
+        let currentSubject = null;
+
+        // DOM elements
+        const studySubject = document.getElementById('studySubject');
+        const startStudyBtn = document.getElementById('startStudy');
+        const stopStudyBtn = document.getElementById('stopStudy');
+        const studyTimer = document.getElementById('studyTimer');
+        const studyHistory = document.getElementById('studyHistory');
+        const logoutBtn = document.getElementById('logout');
+
+        // Romanian school subjects
+        const romanianSubjects = [
+            "Matematică",
+            "Limba Română",
+            "Limba Engleză",
+            "Limba Franceză",
+            "Fizică",
+            "Chimie",
+            "Biologie",
+            "Istorie",
+            "Geografie",
+            "Informatică",
+            "Educație Fizică",
+            "Educație Civică",
+            "Filozofie",
+            "Logica",
+            "Economie",
+            "Psihologie",
+            "Sociologie",
+            "Religie",
+            "Alte Materii"
+        ];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            populateSubjects();
+            setupEventListeners();
+            
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = 'auth.html';
+                } else {
+                    loadStudyHistory(user.uid);
+                }
+            });
+        });
+
+        function populateSubjects() {
+            // Clear existing options except the first one
+            while (studySubject.options.length > 1) {
+                studySubject.remove(1);
+            }
+
+            // Add Romanian subjects to dropdown
+            romanianSubjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                studySubject.appendChild(option);
+            });
+        }
+
+        function setupEventListeners() {
+            startStudyBtn.addEventListener('click', startStudySession);
+            stopStudyBtn.addEventListener('click', stopStudySession);
+            logoutBtn.addEventListener('click', signOutUser);
+        }
+
+        function startStudySession() {
+            currentSubject = studySubject.value;
+            if (!currentSubject) {
+                alert('Selectează o materie înainte de a începe!');
+                return;
+            }
+
+            startTime = new Date();
+            startStudyBtn.disabled = true;
+            stopStudyBtn.disabled = false;
+            studySubject.disabled = true;
+
+            // Update timer every second
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const elapsed = Math.floor((now - startTime) / 1000);
+                const hours = Math.floor(elapsed / 3600);
+                const minutes = Math.floor((elapsed % 3600) / 60);
+                const seconds = elapsed % 60;
+                
+                studyTimer.textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        async function stopStudySession() {
+            if (!timerInterval) return;
+            
+            clearInterval(timerInterval);
+            timerInterval = null;
+            
+            const endTime = new Date();
+            const durationInSeconds = Math.floor((endTime - startTime) / 1000);
+            
+            startStudyBtn.disabled = false;
+            stopStudyBtn.disabled = true;
+            studySubject.disabled = false;
+            
+            const user = auth.currentUser;
+            if (user) {
+                try {
+                    await saveStudySession(
+                        user.uid,
+                        currentSubject,
+                        startTime,
+                        endTime,
+                        durationInSeconds
+                    );
+                    alert(`Sesiunea de studiu pentru ${currentSubject} a fost salvată!`);
+                    loadStudyHistory(user.uid);
+                } catch (error) {
+                    console.error("Error saving study session:", error);
+                    alert("Eroare la salvarea sesiunii. Vezi consola pentru detalii.");
+                }
+            } else {
+                alert("Trebuie să fii autentificat pentru a salva sesiunile de studiu!");
+            }
+            
+            studyTimer.textContent = "00:00:00";
+        }
+
+        async function saveStudySession(userId, subject, startTime, endTime, durationInSeconds) {
+            try {
+                await db.collection("studySessions").add({
+                    userId,
+                    subject,
+                    startTime: firebase.firestore.Timestamp.fromDate(startTime),
+                    endTime: firebase.firestore.Timestamp.fromDate(endTime),
+                    durationInSeconds,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error saving study session:", error);
+                throw error;
+            }
+        }
+
+        async function loadStudyHistory(userId) {
+            try {
+                studyHistory.innerHTML = '<div class="loading">Se încarcă istoricul...</div>';
+                
+                const querySnapshot = await db.collection("studySessions")
+                    .where("userId", "==", userId)
+                    .orderBy("startTime", "desc")
+                    .limit(10)
+                    .get();
+                
+                if (querySnapshot.empty) {
+                    studyHistory.innerHTML = '<div class="error-message">Nu ai nicio sesiune înregistrată</div>';
+                    return;
+                }
+                
+                let historyHTML = '';
+                querySnapshot.forEach(doc => {
+                    const session = doc.data();
+                    const startDate = session.startTime.toDate();
+                    const durationHours = Math.floor(session.durationInSeconds / 3600);
+                    const durationMinutes = Math.floor((session.durationInSeconds % 3600) / 60);
+                    
+                    historyHTML += `
+                        <div class="session-item">
+                            <div class="session-info">
+                                <div class="session-subject">${session.subject}</div>
+                                <div class="session-date">${startDate.toLocaleDateString('ro-RO')} - ${startDate.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'})}</div>
+                            </div>
+                            <div class="session-duration">
+                                ${durationHours.toString().padStart(2, '0')}:${durationMinutes.toString().padStart(2, '0')}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                studyHistory.innerHTML = historyHTML;
+            } catch (error) {
+                console.error("Error loading study history:", error);
+                studyHistory.innerHTML = '<div class="error-message">Eroare la încărcarea istoricului</div>';
+            }
+        }
+
+        function signOutUser() {
+            auth.signOut().then(() => {
+                window.location.href = 'auth.html';
+            }).catch(error => {
+                console.error("Sign out error:", error);
+            });
+        }
+    </script>
 </body>
 </html>
