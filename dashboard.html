@@ -1,33 +1,725 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Plan Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
-    <script type="module" src="app.js" defer></script>
+    <title>Thinkr - Panou de Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 1rem;
+            position: relative;
+        }
+        
+        .logo {
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-menu {
+            margin-top: 2rem;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+        
+        .user-profile {
+            position: absolute;
+            bottom: 2rem;
+            left: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            display: block;
+        }
+        
+        .user-email {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: block;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            color: var(--dark);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .stat-icon.primary {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+        
+        .stat-icon.success {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+        
+        .stat-icon.warning {
+            background-color: rgba(248, 150, 30, 0.1);
+            color: var(--warning);
+        }
+        
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Plans List */
+        .plans-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .plan-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .plan-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .plan-subject {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .plan-lesson {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .plan-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        /* Sessions Table */
+        .sessions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .sessions-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        .sessions-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .session-subject {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .session-duration {
+            font-family: monospace;
+            color: var(--dark);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Study Plan Dashboard</h1>
-        <button id="logout">Logout</button>
-    </header>
-    
-    <div class="container">
-        <div class="form-container">
-            <h2>Create New Study Plan</h2>
-            <form id="studyPlanForm">
-                <!-- Your existing form fields -->
-            </form>
-        </div>
-        
-        <div class="plans-container">
-            <div id="generatedPlan"></div>
-            <div class="previous-plans">
-                <h2>Your Previous Plans</h2>
-                <div id="plansList" class="plans-list"></div>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-brain"></i> Thinkr</h1>
             </div>
-        </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span>Panou Control</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Planificător</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-stopwatch"></i>
+                        <span>Urmărire</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-history"></i>
+                        <span>Istoric</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Setări</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Încărcare...</span>
+                    <span class="user-email" id="userEmail">încărcare...</span>
+                </div>
+                <button class="logout-btn" id="logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title">Bun venit înapoi!</h1>
+                <div class="date-display" id="currentDate">28 mai 2024</div>
+            </div>
+            
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">Total ore studiu</div>
+                            <div class="stat-value" id="totalHours">0h 0m</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon success">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">Zile consecutive</div>
+                            <div class="stat-value" id="streakDays">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">Planuri salvate</div>
+                            <div class="stat-value" id="totalPlans">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">Materie preferată</div>
+                            <div class="stat-value" id="favSubject">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Plans Section -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Planuri recente
+                    </h2>
+                    <button class="btn btn-outline" id="viewAllPlans">
+                        <i class="fas fa-eye"></i> Vezi toate
+                    </button>
+                </div>
+                
+                <div class="plans-list" id="recentPlans">
+                    <div class="empty-state">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Nu ai planuri salvate încă</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Sessions Section -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-history"></i>
+                        Sesiuni recente
+                    </h2>
+                    <button class="btn btn-outline" id="viewAllSessions">
+                        <i class="fas fa-eye"></i> Vezi toate
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="sessions-table">
+                        <thead>
+                            <tr>
+                                <th>Materie</th>
+                                <th>Dată</th>
+                                <th>Durată</th>
+                                <th>Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentSessions">
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    <i class="fas fa-stopwatch"></i>
+                                    <p>Nu ai sesiuni înregistrate recent</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
+
+    <script>
+        // Update current date
+        function updateCurrentDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('ro-RO', options);
+        }
+        
+        // Load user data
+        function loadUserData(user) {
+            if (user) {
+                document.getElementById('userName').textContent = user.displayName || 'Utilizator';
+                document.getElementById('userEmail').textContent = user.email;
+                
+                // You would fetch these from Firestore in a real app
+                document.getElementById('totalHours').textContent = '12h 45m';
+                document.getElementById('streakDays').textContent = '5';
+                document.getElementById('totalPlans').textContent = '7';
+                document.getElementById('favSubject').textContent = 'Matematică';
+            }
+        }
+        
+        // Load recent plans
+        async function loadRecentPlans(userId) {
+            const plansContainer = document.getElementById('recentPlans');
+            
+            try {
+                // Simulating API call
+                setTimeout(() => {
+                    const mockPlans = [
+                        {
+                            id: '1',
+                            subject: 'Matematică',
+                            lesson: 'Funcții trigonometrice',
+                            class: 'Clasa 10',
+                            days: 5,
+                            createdAt: new Date()
+                        },
+                        {
+                            id: '2',
+                            subject: 'Fizică',
+                            lesson: 'Termodinamică',
+                            class: 'Clasa 9',
+                            days: 3,
+                            createdAt: new Date(Date.now() - 86400000)
+                        },
+                        {
+                            id: '3',
+                            subject: 'Limba Română',
+                            lesson: 'Operele lui Eminescu',
+                            class: 'Clasa 12',
+                            days: 7,
+                            createdAt: new Date(Date.now() - 172800000)
+                        }
+                    ];
+                    
+                    if (mockPlans.length === 0) {
+                        plansContainer.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-lightbulb"></i>
+                                <p>Nu ai planuri salvate încă</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    plansContainer.innerHTML = mockPlans.map(plan => `
+                        <div class="plan-card" data-id="${plan.id}">
+                            <div class="plan-subject">
+                                <i class="fas fa-book-open"></i>
+                                ${plan.subject}
+                            </div>
+                            <div class="plan-lesson">${plan.lesson}</div>
+                            <div class="plan-meta">
+                                <span>${plan.class}</span>
+                                <span>${plan.days} zile</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }, 500);
+            } catch (error) {
+                console.error("Error loading plans:", error);
+                plansContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Eroare la încărcarea planurilor</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load recent sessions
+        async function loadRecentSessions(userId) {
+            const sessionsContainer = document.getElementById('recentSessions');
+            
+            try {
+                // Simulating API call
+                setTimeout(() => {
+                    const mockSessions = [
+                        {
+                            id: '1',
+                            subject: 'Matematică',
+                            date: new Date(),
+                            duration: '1h 45m'
+                        },
+                        {
+                            id: '2',
+                            subject: 'Fizică',
+                            date: new Date(Date.now() - 86400000),
+                            duration: '2h 15m'
+                        },
+                        {
+                            id: '3',
+                            subject: 'Limba Română',
+                            date: new Date(Date.now() - 172800000),
+                            duration: '45m'
+                        }
+                    ];
+                    
+                    if (mockSessions.length === 0) {
+                        sessionsContainer.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    <i class="fas fa-stopwatch"></i>
+                                    <p>Nu ai sesiuni înregistrate recent</p>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    sessionsContainer.innerHTML = mockSessions.map(session => `
+                        <tr>
+                            <td class="session-subject">${session.subject}</td>
+                            <td>${session.date.toLocaleDateString('ro-RO')}</td>
+                            <td class="session-duration">${session.duration}</td>
+                            <td>
+                                <button class="btn btn-outline btn-sm">
+                                    <i class="fas fa-info-circle"></i> Detalii
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }, 500);
+            } catch (error) {
+                console.error("Error loading sessions:", error);
+                sessionsContainer.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Eroare la încărcarea sesiunilor</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCurrentDate();
+            
+            // Simulate user data - in your app you'll get this from Firebase Auth
+            const mockUser = {
+                displayName: "Alexandru Popescu",
+                email: "alex.popescu@example.com"
+            };
+            loadUserData(mockUser);
+            
+            // Load data - replace 'user123' with actual user ID in your app
+            loadRecentPlans('user123');
+            loadRecentSessions('user123');
+            
+            // Logout button
+            document.getElementById('logout').addEventListener('click', () => {
+                // You'll implement actual logout logic here
+                console.log("User logged out");
+                window.location.href = 'auth.html';
+            });
+        });
+    </script>
 </body>
 </html>
