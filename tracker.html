@@ -192,7 +192,6 @@
     </style>
 </head>
 <body>
-    <!-- [Your HTML structure remains exactly the same] -->
     <div class="container">
         <header>
             <h1>Thinkr - TrackeR Studiu</h1>
@@ -268,7 +267,6 @@
                 if (!user) {
                     window.location.href = 'auth.html';
                 } else {
-                    // Modified query to avoid index requirement
                     loadStudyHistory(user.uid);
                 }
             });
@@ -360,8 +358,7 @@
                     endTime: firebase.firestore.Timestamp.fromDate(endTime),
                     durationInSeconds,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    // Added timestamp field for sorting without index
-                    sortTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp() // For sorting
                 });
             } catch (error) {
                 console.error("Error saving study session:", error);
@@ -373,10 +370,10 @@
             try {
                 studyHistory.innerHTML = '<div class="loading">Se încarcă istoricul...</div>';
                 
-                // Modified query to use the sortTimestamp field instead of startTime
+                // Query modified to use timestamp instead of startTime
                 const querySnapshot = await db.collection("studySessions")
                     .where("userId", "==", userId)
-                    .orderBy("sortTimestamp", "desc")
+                    .orderBy("timestamp", "desc")
                     .limit(10)
                     .get();
                 
@@ -411,7 +408,8 @@
                 studyHistory.innerHTML = `
                     <div class="error-message">
                         Eroare la încărcarea istoricului. 
-                        <a href="#" onclick="window.location.reload()">Încearcă din nou</a>
+                        <a href="#" onclick="location.reload()">Încearcă din nou</a>
+                        <p>${error.message}</p>
                     </div>
                 `;
             }
