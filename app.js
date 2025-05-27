@@ -285,81 +285,71 @@ async function loadUserStats(userId) {
 
 async function loadStudyHistory(userId) {
     try {
-        const sessionsQuery = query(
-            collection(db, "studySessions"), 
-            where("userId", "==", userId),
-            orderBy("startTime", "desc"),
-            limit(5)
-        );
+        studyHistory.innerHTML = '<div class="loading">Se încarcă istoricul...</div>';
         
-        const querySnapshot = await getDocs(sessionsQuery);
-        const tbody = document.querySelector('#sessionsTableBody');
-        
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
+        // Modified query to use only one field for ordering
+        const querySnapshot = await db.collection("studySessions")
+            .where("userId", "==", userId)
+            .orderBy("createdAt", "desc")  // Using createdAt which is auto-indexed
+            .limit(10)
+            .get();
         
         if (querySnapshot.empty) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Nu ai nicio sesiune înregistrată</td></tr>';
+            studyHistory.innerHTML = '<div class="error-message">Nu ai nicio sesiune înregistrată</div>';
             return;
         }
         
-        querySnapshot.forEach((doc) => {
+        let historyHTML = '';
+        querySnapshot.forEach(doc => {
             const session = doc.data();
             const startDate = session.startTime.toDate();
             const durationHours = Math.floor(session.durationInSeconds / 3600);
             const durationMinutes = Math.floor((session.durationInSeconds % 3600) / 60);
             
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${session.subject}</td>
-                <td>${startDate.toLocaleDateString('ro-RO')}</td>
-                <td>${durationHours.toString().padStart(2, '0')}:${durationMinutes.toString().padStart(2, '0')}</td>
-                <td><span class="badge badge-primary">Complet</span></td>
+            historyHTML += `
+                <div class="session-item">
+                    <div class="session-info">
+                        <div class="session-subject">${session.subject}</div>
+                        <div class="session-date">${startDate.toLocaleDateString('ro-RO')} - ${startDate.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                    <div class="session-duration">
+                        ${durationHours.toString().padStart(2, '0')}:${durationMinutes.toString().padStart(2, '0')}
+                    </div>
+                </div>
             `;
-            tbody.appendChild(row);
         });
         
+        studyHistory.innerHTML = historyHTML;
     } catch (error) {
         console.error("Error loading study history:", error);
-        const tbody = document.querySelector('#sessionsTableBody');
-        if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Eroare la încărcarea istoricului</td></tr>';
-        }
+        studyHistory.innerHTML = `
+            <div class="error-message">
+                Eroare la încărcarea istoricului. 
+                <a href="#" onclick="location.reload()">Încearcă din nou</a>
+                <p>Dacă problema persistă, te rugăm să contactezi administratorul.</p>
+            </div>
+        `;
     }
 }
 
-// Study Plan Functions
-function setupStudyPlanForm() {
-    const form = document.getElementById('studyPlanForm');
-    if (!form) return;
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = {
-            class: form.class.value,
-            subject: form.subject.value,
-            lesson: form.lesson.value,
-            days: parseInt(form.days.value),
-            hoursPerDay: form.hoursPerDay.value ? parseInt(form.hoursPerDay.value) : null
-        };
-        
-        try {
-            const generatedHTML = await generateStudyPlanHTML(formData);
-            document.getElementById('generatedPlan').innerHTML = generatedHTML;
-            
-            if (currentUser) {
-                await saveStudyPlan(currentUser.uid, formData, generatedHTML);
-                await loadPreviousPlans(currentUser.uid);
-            } else {
-                alert("Trebuie să fi conectat ca să poți genera planuri");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Failed to generate or save plan. See console for details.");
-        }
-    });
+
+
+// Study Plan Functions
+async function saveStudySession(userId, subject, startTime, endTime, durationInSeconds) {
+    try {
+        await db.collection("studySessions").add({
+            userId,
+            subject,
+            startTime: firebase.firestore.Timestamp.fromDate(startTime),
+            endTime: firebase.firestore.Timestamp.fromDate(endTime),
+            durationInSeconds,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() // This is what we'll sort by
+        });
+    } catch (error) {
+        console.error("Error saving study session:", error);
+        throw error;
+    }
 }
 
 async function saveStudyPlan(userId, formData, generatedHTML) {
