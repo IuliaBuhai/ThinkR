@@ -498,66 +498,30 @@ async function loadPreviousPlans(userId) {
 
 // OpenAI Integration
 async function generateStudyPlanHTML(formData) {
-    const OPENAI_API_KEY = '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';
+  try {
+    // Call Netlify Function
+    const netlifyFunctionURL = "https://thinkr-infoeducatie.netlify.app/.netlify/functions/generate-plan";
     
-    const hoursText = formData.hoursPerDay 
-        ? `pentru ${formData.hoursPerDay} oră/ore pe zi` 
-        : '';
+    const response = await fetch(netlifyFunctionURL, {
+      method: "POST",
+      body: JSON.stringify({
+        ...formData,
+        userId: auth.currentUser?.uid // For future Firestore saving
+      })
+    });
+
+    const { html } = await response.json();
     
-    const prompt = `Crează un plan detaliat de studiu pentru:
-    - Clasa: ${formData.class}
-    - Materia: ${formData.subject}
-    - Lecția: ${formData.lesson}
-    - Durată: ${formData.days} zile ${hoursText}
-    
-    Planul trebuie să includă:
-    1. Detalierea zilnică a subiectelor de abordat
-    2. Tehnici de studiu sugerate
-    3. Resurse recomandate
-    4. Exerciții practice
-    
-    Formatați răspunsul în HTML cu titluri și liste adecvate.`;
-    
-    try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                    {
-                        role: "user",
-                        content: prompt
-                    }
-                ],
-                temperature: 0.7
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error?.message || 'Failed to generate plan');
-        }
-        
-        const generatedContent = data.choices[0]?.message?.content;
-        
-        return `
-            <div class="study-plan">
-                <h2>Plan de studiu pentru ${formData.subject} - ${formData.lesson}</h2>
-                <p><strong>Clasa:</strong> ${formData.class}</p>
-                <p><strong>Durata:</strong> ${formData.days} zile ${hoursText}</p>
-                ${generatedContent}
-                <p><em>Plan generat la data de ${new Date().toLocaleDateString('ro-RO')}</em></p>
-            </div>
-        `;
-    } catch (error) {
-        console.error("Error calling OpenAI API:", error);
-        return simpleFallbackPlan(formData);
+    // Save to Firestore (optional)
+    if (auth.currentUser) {
+      await saveStudyPlan(auth.currentUser.uid, formData, html);
     }
+
+    return html;
+  } catch (error) {
+    console.error("Error:", error);
+    return simpleFallbackPlan(formData);
+  }
 }
 
 function simpleFallbackPlan(formData) {
