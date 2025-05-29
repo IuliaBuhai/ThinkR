@@ -498,42 +498,25 @@ async function loadPreviousPlans(userId) {
 
 // OpenAI Integration
 async function generateStudyPlanHTML(formData) {
-  const hoursText = formData.hoursPerDay ? `pentru ${formData.hoursPerDay} oră/ore pe zi` : '';
-  
   try {
-    elements.generatedPlan.innerHTML = '<div class="loading">Se generează planul...</div>';
+    const response = await fetch(
+      "https://thinkr-infoeducatie.netlify.app/.netlify/functions/generate-plan",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      }
+    );
     
-    const response = await fetch("https://your-site.netlify.app/.netlify/functions/generate-plan", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
-    });
-
-    const data = await response.json();
+    if (!response.ok) throw new Error("Request failed");
+    const { html } = await response.json();
     
-    if (!response.ok) {
-      throw new Error(data.error || "Request failed");
-    }
-
-    return `
-      <div class="study-plan">
-        <h2>Plan pentru ${formData.subject}</h2>
-        ${data.html}
-        <p><em>Generat la ${new Date().toLocaleDateString('ro-RO')}</em></p>
-      </div>
-    `;
-    
+    return html;
   } catch (error) {
     console.error("Error:", error);
-    return `
-      <div class="error">
-        <p>Eroare: ${error.message}</p>
-        <button onclick="location.reload()">Încearcă din nou</button>
-      </div>
-    `;
+    return simpleFallbackPlan(formData);
   }
 }
-
 // Utility Functions
 function formatTime(seconds) {
     const hours = Math.floor(seconds / 3600);
