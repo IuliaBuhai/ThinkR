@@ -1,16 +1,16 @@
 const { OpenAI } = require("openai");
 
 exports.handler = async (event) => {
-  // Handle CORS preflight request
+  // Handle CORS preflight
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "https://thinkr-infoeducatie.netlify.app",
         "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Allow-Methods": "POST"
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
       },
-      body: JSON.stringify({ message: "CORS preflight" })
+      body: ""
     };
   }
 
@@ -32,7 +32,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: {
-        "Access-Control-Allow-Origin": "https://thinkr-infoeducatie.netlify.app", //
+        "Access-Control-Allow-Origin": "https://thinkr-infoeducatie.netlify.app",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ 
