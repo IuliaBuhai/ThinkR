@@ -145,6 +145,6 @@ Aplicația este găzduită prin **Firebase Hosting**, care oferă:
 
 Pentru întrebări sau feedback:
 - **Autor:** Buhai Iulia Georgiana
-- **Email:** (opțional)
-- **GitHub:** (opțional)
+- **Email:**  iuliabuhai2006@gmail.com
+
 
