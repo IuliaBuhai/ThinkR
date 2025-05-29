@@ -498,39 +498,40 @@ async function loadPreviousPlans(userId) {
 
 // OpenAI Integration
 async function generateStudyPlanHTML(formData) {
+  const hoursText = formData.hoursPerDay ? `pentru ${formData.hoursPerDay} oră/ore pe zi` : '';
+  
   try {
-    // Call Netlify Function
-    const netlifyFunctionURL = "https://thinkr-infoeducatie.netlify.app/.netlify/functions/generate-plan";
+    elements.generatedPlan.innerHTML = '<div class="loading">Se generează planul...</div>';
     
-    const response = await fetch(netlifyFunctionURL, {
+    const response = await fetch("https://your-site.netlify.app/.netlify/functions/generate-plan", {
       method: "POST",
-      body: JSON.stringify({
-        ...formData,
-        userId: auth.currentUser?.uid // For future Firestore saving
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
     });
 
-    const { html } = await response.json();
+    const data = await response.json();
     
-    // Save to Firestore (optional)
-    if (auth.currentUser) {
-      await saveStudyPlan(auth.currentUser.uid, formData, html);
+    if (!response.ok) {
+      throw new Error(data.error || "Request failed");
     }
 
-    return html;
+    return `
+      <div class="study-plan">
+        <h2>Plan pentru ${formData.subject}</h2>
+        ${data.html}
+        <p><em>Generat la ${new Date().toLocaleDateString('ro-RO')}</em></p>
+      </div>
+    `;
+    
   } catch (error) {
     console.error("Error:", error);
-    return simpleFallbackPlan(formData);
-  }
-}
-
-function simpleFallbackPlan(formData) {
     return `
-        <div class="study-plan">
-            <h2>Plan de studiu pentru ${formData.subject}</h2>
-            <p>Ne pare rău, generarea planului a eșuat. Te rugăm să încerci din nou.</p>
-        </div>
+      <div class="error">
+        <p>Eroare: ${error.message}</p>
+        <button onclick="location.reload()">Încearcă din nou</button>
+      </div>
     `;
+  }
 }
 
 // Utility Functions
