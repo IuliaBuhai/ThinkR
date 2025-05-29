@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articole | Thinkr</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js" defer></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--secondary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .article-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .article-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .article-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .article-card:hover .article-image img {
+            transform: scale(1.05);
+        }
+
+        .article-content {
+            padding: 1.5rem;
+        }
+
+        .article-category {
+            display: inline-block;
+            background-color: var(--light);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .article-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark);
+        }
+
+        .article-excerpt {
+            color: var(--gray);
+            margin-bottom: 1.2rem;
+            display: -webkit-box;
+            
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .read-more {
+            display: inline-block;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .read-more:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Thinkr</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="tracker.html">TrackeR</a>
+            <a href="generator_planuri.html">PlanneR</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Articole Educaționale</h1>
+            <p>Explorează colecția mea de articole despre învățare eficientă, tehnici de memorare și dezvoltare personală.</p>
+        </div>
+
+        <div class="articles-grid">
+            <!-- Article 1 -->
+            <div class="article-card">
+                <div class="article-image">
+                    <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Studiu eficient">
+                </div>
+                <div class="article-content">
+                    <span class="article-category">📚 Metode populare și eficiente pentru ÎNVĂȚĂTORII VIZUALI</span>
+                    <h3 class="article-title">„Pentru un învățător vizual, o imagine chiar valorează cât o mie de cuvinte.”</h3>
+                    <p class="article-excerpt">🧠 Ce înseamnă să fii un învățător vizual?</p>
+                    <div class="article-meta">
+                        <span>Mai 2025</span>
+                        <a href="pdf/elevi_vizuali.pdf" class="read-more">Citește mai mult →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 2 -->
+            <div class="article-card">
+                <div class="article-image">
+                    <img src="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Memorare">
+                </div>
+                <div class="article-content">
+                    <span class="article-category">🎧 Metode Populare și Eficiente de Învățare pentru Elevii Auditivi</span>
+                    <h3 class="article-title">Ghidul Complet pentru Învățători Auditivi</h3>
+                    <p class="article-excerpt">Învață eficient prin ascultare, comunicare și exprimare verbală</p>
+                    <div class="article-meta">
+                        <span>Mai 2025</span>
+                        <a href="pdf/elevi_auditivi.pdf" class="read-more">Citește mai mult →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 3 -->
+            <div class="article-card">
+                <div class="article-image">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Productivitate">
+                </div>
+                <div class="article-content">
+                    <span class="article-category">🧠 Metode de învățare eficiente pentru Învățătorii Activi</span>
+                    <h3 class="article-title">(Pentru cei care învață cel mai bine prin mișcare, acțiune și implicare fizică)</h3>
+                    <p class="article-excerpt">Sfaturi generale pentru Învățătorii Activi</p>
+                    <div class="article-meta">
+                        <span>Iunie 2025</span>
+                        <a href="pdf/elevi_activi.pdf" class="read-more">Citește mai mult →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 4 -->
+            <div class="article-card">
+                <div class="article-image">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Planificare">
+                </div>
+                <div class="article-content">
+                    <span class="article-category">🎓 Metodele de Studiu ale Marilor Genii ale Științei</span>
+                    <h3 class="article-title">Cum să Structurezi un Plan de Studiu Perfect</h3>
+                    <p class="article-excerpt">🧭 Ce poți învăța din metodele lor?</p>
+                    <div class="article-meta">
+                        <span>Iunie 2025</span>
+                        <a href="pdf/genii.pdf" class="read-more">Citește mai mult →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 5 -->
+            <div class="article-card">
+                <div class="article-image">
+                    <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Motivație">
+                </div>
+                <div class="article-content">
+                    <span class="article-category">Inventarul Stilurilor de Învățare</span>
+                    <h3 class="article-title">Ce sunt stilurile de învățare?</p>
+                    <div class="article-meta">
+                        <span>Mai 2025</span>
+                        <a href="pdf/stiluri.pdf" class="read-more">Citește mai mult →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 6 -->
+           
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Thinkr. Toate drepturile rezervate.</p>
+    </footer>
+
+   
+</body>
+</html>
