@@ -305,8 +305,12 @@ async function loadStudyHistory(userId) {
     }
     
     try {
-        console.log("Loading study history for user:", userId);
-        elements.studyHistory.innerHTML = '<div class="loading">Se încarcă istoricul...</div>';
+        elements.studyHistory.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Se încarcă istoricul...</p>
+            </div>
+        `;
         
         const q = query(
             collection(db, "studySessions"),
@@ -315,49 +319,89 @@ async function loadStudyHistory(userId) {
             limit(10)
         );
         
-        console.log("Executing query...");
         const querySnapshot = await getDocs(q);
-        console.log(`Found ${querySnapshot.size} documents`);
         
         if (querySnapshot.empty) {
-            console.log("No sessions found for user");
-            elements.studyHistory.innerHTML = '<div class="error-message">Nu ai nicio sesiune înregistrată</div>';
+            elements.studyHistory.innerHTML = `
+                <div class="empty-state">
+                    <i class="icon-book"></i>
+                    <p>Nu ai nicio sesiune înregistrată</p>
+                    <small>Începe să studiezi pentru a vedea istoricul aici</small>
+                </div>
+            `;
             return;
         }
         
         let historyHTML = '';
         querySnapshot.forEach(doc => {
             const session = doc.data();
-            console.log("Processing session:", session);
-            
-            // Convert Firestore timestamp to Date
             const startDate = session.startTime.toDate();
             
-            // Calculate duration
+            // Calculate all time components
             const durationHours = Math.floor(session.durationInSeconds / 3600);
-            const durationMinutes = Math.floor((session.durationInSeconds % 3600) / 60);
+            const remainingSeconds = session.durationInSeconds % 3600;
+            const durationMinutes = Math.floor(remainingSeconds / 60);
+            const durationSeconds = remainingSeconds % 60;
+            
+            // Format date and time beautifully
+            const formattedDate = startDate.toLocaleDateString('ro-RO', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            const formattedTime = startDate.toLocaleTimeString('ro-RO', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Format duration with conditional display
+            let durationDisplay = '';
+            if (durationHours > 0) {
+                durationDisplay += `${durationHours}h `;
+            }
+            if (durationMinutes > 0 || durationHours > 0) {
+                durationDisplay += `${durationMinutes}m `;
+            }
+            durationDisplay += `${durationSeconds}s`;
             
             historyHTML += `
-                <div class="session-item">
-                    <div class="session-info">
-                        <div class="session-subject">${session.subject || 'Nespecificat'}</div>
-                        <div class="session-date">${startDate.toLocaleDateString('ro-RO')} - ${startDate.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'})}</div>
+                <div class="session-card">
+                    <div class="session-header">
+                        <span class="subject-badge">${session.subject || 'Nespecificat'}</span>
+                        <span class="date-badge">${formattedDate}</span>
                     </div>
-                    <div class="session-duration">
-                        ${durationHours.toString().padStart(2, '0')}:${durationMinutes.toString().padStart(2, '0')}
+                    <div class="session-body">
+                        <div class="time-info">
+                            <span class="time-icon">🕒</span>
+                            <span>${formattedTime}</span>
+                        </div>
+                        <div class="duration-info">
+                            <span class="duration-icon">⏱️</span>
+                            <span>${durationDisplay}</span>
+                        </div>
                     </div>
                 </div>
             `;
         });
         
-        elements.studyHistory.innerHTML = historyHTML;
+        elements.studyHistory.innerHTML = `
+            <div class="study-history-container">
+                <h3 class="history-title">Ultimele sesiuni de studiu</h3>
+                <div class="sessions-list">${historyHTML}</div>
+            </div>
+        `;
     } catch (error) {
         console.error("Error loading study history:", error);
         elements.studyHistory.innerHTML = `
-            <div class="error-message">
-                Eroare la încărcarea istoricului. 
-                <button onclick="loadStudyHistory('${userId}')">Încearcă din nou</button>
-                <p>Detalii eroare: ${error.message}</p>
+            <div class="error-state">
+                <i class="icon-warning"></i>
+                <p>Eroare la încărcarea istoricului</p>
+                <small>${error.message}</small>
+                <button class="retry-button" onclick="loadStudyHistory('${userId}')">
+                    Încearcă din nou
+                </button>
             </div>
         `;
     }
