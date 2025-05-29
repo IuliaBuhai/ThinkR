@@ -299,9 +299,13 @@ async function loadUserStats(userId) {
 }
 
 async function loadStudyHistory(userId) {
-    if (!elements.studyHistory) return;
+    if (!elements.studyHistory) {
+        console.error("Study history element not found");
+        return;
+    }
     
     try {
+        console.log("Loading study history for user:", userId);
         elements.studyHistory.innerHTML = '<div class="loading">Se încarcă istoricul...</div>';
         
         const q = query(
@@ -311,9 +315,12 @@ async function loadStudyHistory(userId) {
             limit(10)
         );
         
+        console.log("Executing query...");
         const querySnapshot = await getDocs(q);
+        console.log(`Found ${querySnapshot.size} documents`);
         
         if (querySnapshot.empty) {
+            console.log("No sessions found for user");
             elements.studyHistory.innerHTML = '<div class="error-message">Nu ai nicio sesiune înregistrată</div>';
             return;
         }
@@ -321,14 +328,19 @@ async function loadStudyHistory(userId) {
         let historyHTML = '';
         querySnapshot.forEach(doc => {
             const session = doc.data();
+            console.log("Processing session:", session);
+            
+            // Convert Firestore timestamp to Date
             const startDate = session.startTime.toDate();
+            
+            // Calculate duration
             const durationHours = Math.floor(session.durationInSeconds / 3600);
             const durationMinutes = Math.floor((session.durationInSeconds % 3600) / 60);
             
             historyHTML += `
                 <div class="session-item">
                     <div class="session-info">
-                        <div class="session-subject">${session.subject}</div>
+                        <div class="session-subject">${session.subject || 'Nespecificat'}</div>
                         <div class="session-date">${startDate.toLocaleDateString('ro-RO')} - ${startDate.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'})}</div>
                     </div>
                     <div class="session-duration">
@@ -344,13 +356,12 @@ async function loadStudyHistory(userId) {
         elements.studyHistory.innerHTML = `
             <div class="error-message">
                 Eroare la încărcarea istoricului. 
-                <a href="#" onclick="location.reload()">Încearcă din nou</a>
-                <p>Dacă problema persistă, te rugăm să contactezi administratorul.</p>
+                <button onclick="loadStudyHistory('${userId}')">Încearcă din nou</button>
+                <p>Detalii eroare: ${error.message}</p>
             </div>
         `;
     }
 }
-
 // Study Plan Functions
 function setupStudyPlanForm() {
     if (!elements.planForm) return;
