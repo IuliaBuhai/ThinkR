@@ -498,7 +498,11 @@ async function loadPreviousPlans(userId) {
 
 // OpenAI Integration
 async function generateStudyPlanHTML(formData) {
+  const hoursText = formData.hoursPerDay ? `pentru ${formData.hoursPerDay} oră/ore pe zi` : '';
+  
   try {
+    elements.generatedPlan.innerHTML = '<div class="loading">Se generează planul de studiu...</div>';
+    
     const response = await fetch(
       "https://thinkr-infoeducatie.netlify.app/.netlify/functions/generate-plan",
       {
@@ -507,15 +511,41 @@ async function generateStudyPlanHTML(formData) {
         body: JSON.stringify(formData)
       }
     );
-    
+
     if (!response.ok) throw new Error("Request failed");
+    
     const { html } = await response.json();
     
-    return html;
+    // Save to Firestore if user is logged in
+    if (currentUser) {
+      await saveStudyPlan(currentUser.uid, formData, html);
+    }
+
+    return `
+      <div class="study-plan">
+        <h2>Plan de studiu pentru ${formData.subject} - ${formData.lesson}</h2>
+        <p><strong>Clasa:</strong> ${formData.class}</p>
+        <p><strong>Durata:</strong> ${formData.days} zile ${hoursText}</p>
+        ${html}
+        <p><em>Plan generat la ${new Date().toLocaleDateString('ro-RO')}</em></p>
+      </div>
+    `;
   } catch (error) {
     console.error("Error:", error);
     return simpleFallbackPlan(formData);
   }
+}
+
+function simpleFallbackPlan(formData) {
+  return `
+    <div class="study-plan">
+      <h2>Plan de studiu pentru ${formData.subject}</h2>
+      <p>Ne pare rău, generarea planului a eșuat. Te rugăm să încerci din nou.</p>
+      <button onclick="document.getElementById('studyPlanForm').dispatchEvent(new Event('submit'))">
+        Reîncearcă
+      </button>
+    </div>
+  `;
 }
 // Utility Functions
 function formatTime(seconds) {
