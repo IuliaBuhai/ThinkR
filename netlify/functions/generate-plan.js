@@ -1,7 +1,19 @@
-// Use require instead of import for better Netlify compatibility
 const { OpenAI } = require("openai");
 
 exports.handler = async (event) => {
+  // Handle CORS preflight request
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST"
+      },
+      body: JSON.stringify({ message: "CORS preflight" })
+    };
+  }
+
   try {
     const { subject, lesson, days, hoursPerDay } = JSON.parse(event.body);
     
@@ -19,6 +31,10 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "https://thinkr-infoeducatie.netlify.app", //
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ 
         html: response.choices[0]?.message?.content || "No content generated"
       })
@@ -26,6 +42,10 @@ exports.handler = async (event) => {
   } catch (error) {
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "https://thinkr-infoeducatie.netlify.app",
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ 
         error: "Failed to generate plan",
         details: error.message 
