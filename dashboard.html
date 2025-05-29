@@ -260,6 +260,81 @@
             color: var(--primary);
         }
 
+        .study-history-container {
+    font-family: 'Segoe UI', sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.history-title {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.session-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.subject-badge {
+    background: #3498db;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.date-badge {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+}
+
+.session-body {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.time-info, .duration-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+}
+
+.spinner {
+    /* Add your spinner animation here */
+}
+
+.empty-state, .error-state {
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+}
+
+.retry-button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
         /* Responsive */
         @media (max-width: 1200px) {
             .stats-grid {
@@ -287,6 +362,9 @@
         a {
             text-decoration: none;
         }
+
+
+        
     </style>
 </head>
 <body>
