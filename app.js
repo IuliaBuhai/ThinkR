@@ -15,7 +15,8 @@ import {
     getDocs,
     serverTimestamp,
     orderBy,
-    limit
+    limit,
+    Timestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Firebase Configuration
@@ -40,6 +41,24 @@ let startTime = null;
 let currentSubject = null;
 let currentUser = null;
 
+// DOM Elements
+const elements = {
+    loginForm: document.getElementById('formularLogin'),
+    signupForm: document.getElementById('formularSignup'),
+    logoutBtn: document.getElementById('logout'),
+    startStudyBtn: document.getElementById('startStudy'),
+    stopStudyBtn: document.getElementById('stopStudy'),
+    subjectSelect: document.getElementById('studySubject'),
+    timerDisplay: document.getElementById('studyTimer'),
+    studyHistory: document.getElementById('studyHistory'),
+    planForm: document.getElementById('studyPlanForm'),
+    generatedPlan: document.getElementById('generatedPlan'),
+    plansList: document.getElementById('plansList'),
+    totalHours: document.getElementById('totalHours'),
+    subjectsCount: document.getElementById('subjectsCount'),
+    completedPlans: document.getElementById('completedPlans')
+};
+
 // Initialize the App
 document.addEventListener('DOMContentLoaded', () => {
     setupAuthHandlers();
@@ -54,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             loadUserStats(user.uid);
             loadStudyHistory(user.uid);
+            loadPreviousPlans(user.uid);
         } else {
             if (!window.location.pathname.includes('auth.html') && window.location.pathname !== '/') {
                 window.location.href = 'auth.html';
@@ -65,9 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Authentication Functions
 function setupAuthHandlers() {
     // Login form
-    const loginForm = document.getElementById('formularLogin');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
+    if (elements.loginForm) {
+        elements.loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('emailAutentificare').value;
             const password = document.getElementById('parolaAutentificare').value;
@@ -83,9 +102,8 @@ function setupAuthHandlers() {
     }
 
     // Signup form
-    const signupForm = document.getElementById('formularSignup');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
+    if (elements.signupForm) {
+        elements.signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('numeInregistrare').value;
             const email = document.getElementById('emailInregistrare').value;
@@ -108,14 +126,16 @@ function setupAuthHandlers() {
     }
 
     // Logout button
-    document.getElementById('logout')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-            await signOut(auth);
-        } catch (err) {
-            console.error("Logout error:", err);
-        }
-    });
+    if (elements.logoutBtn) {
+        elements.logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.error("Logout error:", err);
+            }
+        });
+    }
 }
 
 function getRomanianErrorMessage(errorCode) {
@@ -134,12 +154,7 @@ function getRomanianErrorMessage(errorCode) {
 
 // Study Tracker Functions
 function setupStudyTracker() {
-    const startBtn = document.getElementById('startStudy');
-    const stopBtn = document.getElementById('stopStudy');
-    const subjectSelect = document.getElementById('studySubject');
-    const timerDisplay = document.getElementById('studyTimer');
-
-    if (!startBtn || !stopBtn || !subjectSelect || !timerDisplay) return;
+    if (!elements.startStudyBtn || !elements.stopStudyBtn || !elements.subjectSelect || !elements.timerDisplay) return;
 
     // Romanian school subjects
     const romanianSubjects = [
@@ -165,8 +180,8 @@ function setupStudyTracker() {
     ];
 
     // Clear existing options except the first one
-    while (subjectSelect.options.length > 1) {
-        subjectSelect.remove(1);
+    while (elements.subjectSelect.options.length > 1) {
+        elements.subjectSelect.remove(1);
     }
 
     // Populate subject dropdown
@@ -174,20 +189,20 @@ function setupStudyTracker() {
         const option = document.createElement('option');
         option.value = subject;
         option.textContent = subject;
-        subjectSelect.appendChild(option);
+        elements.subjectSelect.appendChild(option);
     });
 
-    startBtn.addEventListener('click', () => {
-        currentSubject = subjectSelect.value;
+    elements.startStudyBtn.addEventListener('click', () => {
+        currentSubject = elements.subjectSelect.value;
         if (!currentSubject) {
             alert('Selectează o materie înainte de a începe!');
             return;
         }
 
         startTime = new Date();
-        startBtn.disabled = true;
-        stopBtn.disabled = false;
-        subjectSelect.disabled = true;
+        elements.startStudyBtn.disabled = true;
+        elements.stopStudyBtn.disabled = false;
+        elements.subjectSelect.disabled = true;
 
         timerInterval = setInterval(() => {
             const now = new Date();
@@ -196,12 +211,12 @@ function setupStudyTracker() {
             const minutes = Math.floor((elapsed % 3600) / 60);
             const seconds = elapsed % 60;
             
-            timerDisplay.textContent = 
+            elements.timerDisplay.textContent = 
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }, 1000);
     });
 
-    stopBtn.addEventListener('click', async () => {
+    elements.stopStudyBtn.addEventListener('click', async () => {
         if (!timerInterval) return;
         
         clearInterval(timerInterval);
@@ -210,9 +225,9 @@ function setupStudyTracker() {
         const endTime = new Date();
         const durationInSeconds = Math.floor((endTime - startTime) / 1000);
         
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        subjectSelect.disabled = false;
+        elements.startStudyBtn.disabled = false;
+        elements.stopStudyBtn.disabled = true;
+        elements.subjectSelect.disabled = false;
         
         if (currentUser) {
             try {
@@ -234,7 +249,7 @@ function setupStudyTracker() {
             alert("Trebuie să fii autentificat pentru a salva sesiunile de studiu!");
         }
         
-        timerDisplay.textContent = "00:00:00";
+        elements.timerDisplay.textContent = "00:00:00";
     });
 }
 
@@ -243,8 +258,8 @@ async function saveStudySession(userId, subject, startTime, endTime, durationInS
         await addDoc(collection(db, "studySessions"), {
             userId,
             subject,
-            startTime,
-            endTime,
+            startTime: Timestamp.fromDate(startTime),
+            endTime: Timestamp.fromDate(endTime),
             durationInSeconds,
             createdAt: serverTimestamp()
         });
@@ -270,13 +285,13 @@ async function loadUserStats(userId) {
             subjects.add(session.subject);
         });
         
-        document.getElementById('totalHours').textContent = Math.round(totalHours);
-        document.getElementById('subjectsCount').textContent = subjects.size;
+        if (elements.totalHours) elements.totalHours.textContent = Math.round(totalHours);
+        if (elements.subjectsCount) elements.subjectsCount.textContent = subjects.size;
         
         // Get completed plans count
         const plansQuery = query(collection(db, "studyPlans"), where("userId", "==", userId));
         const plansSnapshot = await getDocs(plansQuery);
-        document.getElementById('completedPlans').textContent = plansSnapshot.size;
+        if (elements.completedPlans) elements.completedPlans.textContent = plansSnapshot.size;
         
     } catch (error) {
         console.error("Error loading user stats:", error);
@@ -284,18 +299,22 @@ async function loadUserStats(userId) {
 }
 
 async function loadStudyHistory(userId) {
+    if (!elements.studyHistory) return;
+    
     try {
-        studyHistory.innerHTML = '<div class="loading">Se încarcă istoricul...</div>';
+        elements.studyHistory.innerHTML = '<div class="loading">Se încarcă istoricul...</div>';
         
-        // Modified query to use only one field for ordering
-        const querySnapshot = await db.collection("studySessions")
-            .where("userId", "==", userId)
-            .orderBy("createdAt", "desc")  // Using createdAt which is auto-indexed
-            .limit(10)
-            .get();
+        const q = query(
+            collection(db, "studySessions"),
+            where("userId", "==", userId),
+            orderBy("createdAt", "desc"),
+            limit(10)
+        );
+        
+        const querySnapshot = await getDocs(q);
         
         if (querySnapshot.empty) {
-            studyHistory.innerHTML = '<div class="error-message">Nu ai nicio sesiune înregistrată</div>';
+            elements.studyHistory.innerHTML = '<div class="error-message">Nu ai nicio sesiune înregistrată</div>';
             return;
         }
         
@@ -319,10 +338,10 @@ async function loadStudyHistory(userId) {
             `;
         });
         
-        studyHistory.innerHTML = historyHTML;
+        elements.studyHistory.innerHTML = historyHTML;
     } catch (error) {
         console.error("Error loading study history:", error);
-        studyHistory.innerHTML = `
+        elements.studyHistory.innerHTML = `
             <div class="error-message">
                 Eroare la încărcarea istoricului. 
                 <a href="#" onclick="location.reload()">Încearcă din nou</a>
@@ -332,24 +351,40 @@ async function loadStudyHistory(userId) {
     }
 }
 
-
-
-
 // Study Plan Functions
-async function saveStudySession(userId, subject, startTime, endTime, durationInSeconds) {
-    try {
-        await db.collection("studySessions").add({
-            userId,
-            subject,
-            startTime: firebase.firestore.Timestamp.fromDate(startTime),
-            endTime: firebase.firestore.Timestamp.fromDate(endTime),
-            durationInSeconds,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp() // This is what we'll sort by
-        });
-    } catch (error) {
-        console.error("Error saving study session:", error);
-        throw error;
-    }
+function setupStudyPlanForm() {
+    if (!elements.planForm) return;
+
+    elements.planForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = {
+            class: document.getElementById('class').value,
+            subject: document.getElementById('subject').value,
+            lesson: document.getElementById('lesson').value,
+            days: document.getElementById('days').value,
+            hoursPerDay: document.getElementById('hoursPerDay').value
+        };
+
+        try {
+            const loadingElement = document.createElement('div');
+            loadingElement.className = 'loading';
+            loadingElement.textContent = 'Se generează planul de studiu...';
+            elements.generatedPlan.innerHTML = '';
+            elements.generatedPlan.appendChild(loadingElement);
+            
+            const generatedHTML = await generateStudyPlanHTML(formData);
+            elements.generatedPlan.innerHTML = generatedHTML;
+            
+            if (currentUser) {
+                await saveStudyPlan(currentUser.uid, formData, generatedHTML);
+                await loadPreviousPlans(currentUser.uid);
+            }
+        } catch (error) {
+            console.error("Error generating study plan:", error);
+            elements.generatedPlan.innerHTML = simpleFallbackPlan(formData);
+        }
+    });
 }
 
 async function saveStudyPlan(userId, formData, generatedHTML) {
@@ -373,44 +408,42 @@ async function saveStudyPlan(userId, formData, generatedHTML) {
 }
 
 async function loadPreviousPlans(userId) {
+    if (!elements.plansList) return;
+    
     try {
-        const plansList = document.getElementById('plansList');
-        if (!plansList) return;
-        
-        plansList.innerHTML = '<p>Se încarcă planurile tale...</p>';
+        elements.plansList.innerHTML = '<p>Se încarcă planurile tale...</p>';
         
         const q = query(collection(db, "studyPlans"), where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
         
         if (querySnapshot.empty) {
-            plansList.innerHTML = '<p>Nu ai planuri salvate</p>';
+            elements.plansList.innerHTML = '<p>Nu ai planuri salvate</p>';
             return;
         }
         
-        plansList.innerHTML = '';
+        elements.plansList.innerHTML = '';
         querySnapshot.forEach((doc) => {
             const plan = doc.data();
             const planItem = document.createElement('div');
             planItem.className = 'plan-item';
             planItem.innerHTML = `
                 <h3>${plan.subject} - ${plan.lesson}</h3>
-                <p>Creat: ${plan.createdAt?.toDate().toLocaleDateString() || 'Dată necunoscută'}</p>
+                <p>Creat: ${plan.createdAt?.toDate().toLocaleDateString('ro-RO') || 'Dată necunoscută'}</p>
             `;
             planItem.addEventListener('click', () => {
-                document.getElementById('generatedPlan').innerHTML = plan.generatedHTML;
+                elements.generatedPlan.innerHTML = plan.generatedHTML;
             });
-            plansList.appendChild(planItem);
+            elements.plansList.appendChild(planItem);
         });
     } catch (error) {
         console.error("Error loading plans:", error);
-        document.getElementById('plansList').innerHTML = '<p>Eroare la încărcarea planurilor</p>';
+        elements.plansList.innerHTML = '<p>Eroare la încărcarea planurilor</p>';
     }
 }
 
 // OpenAI Integration
 async function generateStudyPlanHTML(formData) {
-   const OPENAI_API_KEY = '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';
-    
+    const OPENAI_API_KEY = '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';
     
     const hoursText = formData.hoursPerDay 
         ? `pentru ${formData.hoursPerDay} oră/ore pe zi` 
@@ -463,7 +496,7 @@ async function generateStudyPlanHTML(formData) {
                 <p><strong>Clasa:</strong> ${formData.class}</p>
                 <p><strong>Durata:</strong> ${formData.days} zile ${hoursText}</p>
                 ${generatedContent}
-                <p><em>Plan generat la data de ${new Date().toLocaleDateString()}</em></p>
+                <p><em>Plan generat la data de ${new Date().toLocaleDateString('ro-RO')}</em></p>
             </div>
         `;
     } catch (error) {
@@ -479,4 +512,24 @@ function simpleFallbackPlan(formData) {
             <p>Ne pare rău, generarea planului a eșuat. Te rugăm să încerci din nou.</p>
         </div>
     `;
+}
+
+// Utility Functions
+function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Export functions for debugging
+if (window) {
+    window.app = {
+        auth,
+        db,
+        currentUser,
+        saveStudySession,
+        loadStudyHistory,
+        generateStudyPlanHTML
+    };
 }
