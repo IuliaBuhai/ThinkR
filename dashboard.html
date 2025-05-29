@@ -284,6 +284,9 @@
                 grid-template-columns: 1fr;
             }
         }
+        a {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -301,7 +304,7 @@
                 <a href="generator_planuri.html"><i>📚</i> Study Plans</a>
             </div>
             <div class="nav-item">
-                <i>⏱️</i> Study TrackeR
+                <a href="tracker.html"><i>⏱️</i> Study TrackeR</a>
             </div>
             <div class="nav-item">
                 <a href="articole.html"><i>📈</i> Articole</a>
@@ -348,16 +351,14 @@
                 <!-- Study Time Chart -->
                 <div class="card chart-container">
                     <div class="card-header">
-                        <h3 class="card-title">Weekly Study Time</h3>
+                        <h3 class="card-title">Timp studiat această săptămână</h3>
                         <div class="card-actions">
-                            <button class="btn btn-outline">Săptămână</button>
-                            <button class="btn btn-outline">Lună</button>
-                            <button class="btn btn-primary">An</button>
+                            <button class="btn btn-primar">Săptămână</button>
+                            
                         </div>
                     </div>
                     <canvas id="studyTimeChart"></canvas>
-                </div>  --:
-
+                </div>  
                 <!-- Current Sessions -->
                 <div class="card study-sessions">
                     <div class="card-header">
@@ -369,7 +370,7 @@
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Subject</label>
                                 <select id="studySubject" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #dee2e6;">
-                                    <option value="">Select a subject</option>
+                                    <option value="">Alege un subiect</option>
                                     <!-- Will be populated by JS -->
                                 </select>
                             </div>
@@ -384,12 +385,12 @@
                 <!-- Generated Study Plan -->
                 <div class="card study-plan-container">
                     <div class="card-header">
-                        <h3 class="card-title">Generated Study Plan</h3>
-                        <button id="newPlanBtn" class="btn btn-primary">New Plan</button>
+                        <h3 class="card-title">Planuri generate</h3>
+                        <a href="generator_planuri.html"><newPlanBtn" class="btn btn-primary">Plan nou</button></a>
                     </div>
                     <div id="generatedPlan">
                         <div style="text-align: center; padding: 2rem; color: #6c757d;">
-                            <p>Generate a new study plan to get started</p>
+                            <p>Generează un nou plan</p>
                         </div>
                     </div>
                 </div>
@@ -397,10 +398,8 @@
                 <!-- Previous Plans -->
                 <div class="card study-plan-container">
                     <div class="card-header">
-                        <h3 class="card-title">Your Study Plans</h3>
-                        <div class="card-actions">
-                            <button class="btn btn-outline">Filter</button>
-                        </div>
+                        <h3 class="card-title">Planurile tale</h3>
+                        
                     </div>
                     <div id="plansList" class="plans-list">
                         <!-- Will be populated by JS -->
@@ -410,18 +409,18 @@
                 <!-- Session History -->
                 <div class="card session-history">
                     <div class="card-header">
-                        <h3 class="card-title">Recent Study Sessions</h3>
+                        <h3 class="card-title">Sesiuni recente studiat</h3>
                         <div class="card-actions">
-                            <button class="btn btn-outline">View All</button>
+                            <button class="btn btn-outline">Vezi toate</button>
                         </div>
                     </div>
                     <div id="studyHistory">
                         <table class="session-table">
                             <thead>
                                 <tr>
-                                    <th>Subject</th>
-                                    <th>Date</th>
-                                    <th>Duration</th>
+                                    <th>Subiect</th>
+                                    <th>Dată</th>
+                                    <th>Durată</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -477,12 +476,12 @@
 
             // Subject Distribution Chart (example - you can replace with real data)
             const subjectData = {
-                "Mathematics": 15,
-                "Physics": 8,
-                "Chemistry": 6,
-                "Biology": 10,
-                "History": 5,
-                "Literature": 7
+                "Matematică": 15,
+                "Fizică": 8,
+                "Chimie": 6,
+                "Biologie": 10,
+                "Istorie": 5,
+                "Franceză": 7
             };
         });
     </script>
