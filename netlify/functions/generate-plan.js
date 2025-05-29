@@ -15,8 +15,23 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { subject, lesson, days, hoursPerDay } = JSON.parse(event.body);
-    
+    const { class: classLevel, subject, lesson, days, hoursPerDay } = JSON.parse(event.body);
+    const hoursText = hoursPerDay ? `pentru ${hoursPerDay} oră/ore pe zi` : '';
+
+    const prompt = `Crează un plan detaliat de studiu pentru:
+- Clasa: ${classLevel}
+- Materia: ${subject}
+- Lecția: ${lesson}
+- Durată: ${days} zile ${hoursText}
+
+Planul trebuie să includă:
+1. Detalierea zilnică a subiectelor de abordat
+2. Tehnici de studiu sugerate
+3. Resurse recomandate cu denumiri de cărți școlare sau populare
+4. Exerciții practice - și grele și ușoare
+
+Formatați răspunsul în HTML cu titluri și liste adecvate.`;
+
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
     });
@@ -25,9 +40,12 @@ exports.handler = async (event) => {
       model: "gpt-3.5-turbo",
       messages: [{
         role: "user",
-        content: `Crează un plan de studiu în română pentru ${subject} (${days} zile, ${hoursPerDay} ore/zi)`
-      }]
+        content: prompt
+      }],
+      temperature: 0.7
     });
+
+    const generatedHTML = response.choices[0]?.message?.content || "Nu s-a putut genera planul.";
 
     return {
       statusCode: 200,
@@ -36,7 +54,7 @@ exports.handler = async (event) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ 
-        html: response.choices[0]?.message?.content || "No content generated"
+        html: generatedHTML
       })
     };
   } catch (error) {
