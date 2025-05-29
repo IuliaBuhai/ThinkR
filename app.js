@@ -443,7 +443,7 @@ async function loadPreviousPlans(userId) {
 
 // OpenAI Integration
 async function generateStudyPlanHTML(formData) {
-    const OPENAI_API_KEY = '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';
+    const OPENAI_API_KEY = 'sk-aUKetmmqtVBlylZwRyTyPw8DgSLF5wONrVHh6iy49zT3BlbkFJ2wVCepaWocmBkhTmr5ybZZWWXN1s47DNqNaloQ6VAA';
     
     const hoursText = formData.hoursPerDay 
         ? `pentru ${formData.hoursPerDay} oră/ore pe zi` 
