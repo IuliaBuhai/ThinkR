@@ -1,614 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Study Dashboard | Thinkr</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Dashboard - Thinkr</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script type="module" src="app.js" defer></script>
     <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --success: #4cc9f0;
-            --warning: #f8961e;
-            --danger: #ef233c;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: var(--dark);
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--primary);
-        }
-
-        #logout {
-            background-color: var(--light);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        #logout:hover {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: calc(100vh - 60px);
-        }
-
-        .sidebar {
-            background-color: white;
-            padding: 1.5rem;
-            border-right: 1px solid #e9ecef;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background-color: #f8f9fa;
-            color: var(--primary);
-        }
-
-        .nav-item i {
-            margin-right: 0.75rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .main-content {
-            padding: 2rem;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 1.5rem;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            padding: 1.5rem;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid #dee2e6;
-        }
-
-        .btn-outline:hover {
-            background-color: #f8f9fa;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            grid-column: span 12;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-        }
-
-        .stat-card {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-
-        .stat-label {
-            color: #6c757d;
-            font-size: 0.875rem;
-        }
-
-        .stat-change {
-            display: flex;
-            align-items: center;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-        }
-
-        .stat-change.up {
-            color: #2ecc71;
-        }
-
-        .stat-change.down {
-            color: var(--danger);
-        }
-
-        /* Charts */
-        .chart-container {
-            grid-column: span 8;
-            height: 350px;
-        }
-
-        .study-sessions {
-            grid-column: span 4;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        /* Study Plan */
-        .study-plan-container {
-            grid-column: span 12;
-        }
-
-        .plan-card {
-            border-left: 4px solid var(--primary);
-            margin-bottom: 1rem;
-            transition: all 0.3s;
-        }
-
-        .plan-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-        }
-
-        /* Session History */
-        .session-history {
-            grid-column: span 12;
-        }
-
-        .session-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .session-table th, .session-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .session-table th {
-            font-weight: 600;
-            color: #495057;
-            background-color: #f8f9fa;
-        }
-
-        .session-table tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-primary {
-            background-color: #e3f2fd;
-            color: var(--primary);
-        }
-
-        .study-history-container {
-            font-family: 'Segoe UI', sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .history-title {
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .session-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .session-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .subject-badge {
-            background: #3498db;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-        }
-
-        .date-badge {
-            color: #7f8c8d;
-            font-size: 0.85rem;
-        }
-
-        .session-body {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .time-info, .duration-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .spinner {
-            /* Add your spinner animation here */
-        }
-
-        .empty-state, .error-state {
-            text-align: center;
-            padding: 2rem;
-            color: #7f8c8d;
-        }
-
-        .retry-button {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            margin-top: 1rem;
-            cursor: pointer;
-        }
-
-        /* Clock styling */
-        #clock {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            text-align: center;
-            padding: 1rem 0;
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .chart-container, .study-sessions {
-                grid-column: span 12;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                display: none;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        a {
-            text-decoration: none;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #stats { display: flex; gap: 2rem; margin-bottom: 2rem; }
+        .stat { background: #f0f0f0; padding: 1rem 2rem; border-radius: 8px; flex: 1; text-align: center; }
+        canvas { max-width: 100%; height: 300px; }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">Thinkr</div>
-        <button id="logout">Logout</button>
-    </header>
 
-    <div class="dashboard">
-        <div class="sidebar">
-            <div class="nav-item active">
-                <i>📊</i> Dashboard
-            </div>
-            <div class="nav-item">
-                <a href="generator_planuri.html"><i>📚</i> Study Plans</a>
-            </div>
-            <div class="nav-item">
-                <a href="tracker.html"><i>⏱️</i> Study TrackeR</a>
-            </div>
-            <div class="nav-item">
-                <a href="istoric_sesiuni.html"><i>📜</i> History</a>
-            </div>
-        </div>
+<h1>Dashboard</h1>
 
-        <main class="main-content">
-            <div class="dashboard-grid">
-
-                <!-- Stats Cards -->
-                <div class="stats-grid" style="grid-column: span 12;">
-                    <div class="stat-card">
-                        <div class="stat-label">Ore studiate luna aceasta</div>
-                        <div class="stat-value">25h 15m</div>
-                        <div class="stat-change up">
-                            <i>⬆️</i> +12% față de luna trecută
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Ședințe săptămâna aceasta</div>
-                        <div class="stat-value">6</div>
-                        <div class="stat-change up">
-                            <i>⬆️</i> +2 față de săptămâna trecută
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Obiectiv lunar atins</div>
-                        <div class="stat-value">75%</div>
-                        <div class="stat-change down">
-                            <i>⬇️</i> -10% față de luna trecută
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Timp mediu ședință</div>
-                        <div class="stat-value">38m</div>
-                        <div class="stat-change up">
-                            <i>⬆️</i> +5m față de săptămâna trecută
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Study Time Chart -->
-                <div class="card chart-container">
-                    <div class="card-header">
-                        <h3 class="card-title">Timpul de studiu în ultimele 7 zile</h3>
-                    </div>
-                    <canvas id="studyTimeChart"></canvas>
-                </div>
-
-                <!-- Time per Subject Chart -->
-                <div class="card chart-container">
-                    <div class="card-header">
-                        <h3 class="card-title">Timp studiat pe materie</h3>
-                    </div>
-                    <canvas id="timePerSubjectChart"></canvas>
-                </div>
-
-                <!-- Study Sessions & Clock (original panel) -->
-                <div class="card study-sessions">
-                    <div class="card-header">
-                        <h3 class="card-title">Sesiuni de studiu</h3>
-                    </div>
-                    <div id="clock">--:--:--</div>
-                    <ul id="sessionList" style="list-style:none; padding-left:0; margin:0;">
-                        <li>Matematică - 1h 30m</li>
-                        <li>Fizică - 45m</li>
-                        <li>Biologie - 1h 15m</li>
-                        <li>Istorie - 30m</li>
-                    </ul>
-                </div>
-
-                <!-- Weekly Goal Chart -->
-                <div class="card study-sessions">
-                    <div class="card-header">
-                        <h3 class="card-title">Progres Obiectiv Săptămânal</h3>
-                    </div>
-                    <div id="weeklyGoalChart" style="flex-grow:1;"></div>
-                </div>
-
-            </div>
-        </main>
+<div id="stats">
+    <div class="stat">
+        <h2 id="totalHours">0</h2>
+        <p>Ore totale studiate</p>
     </div>
+    <div class="stat">
+        <h2 id="subjectsCount">0</h2>
+        <p>Materii studiate</p>
+    </div>
+    <div class="stat">
+        <h2 id="completedPlans">0</h2>
+        <p>Planuri completate</p>
+    </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Study Time Chart (Chart.js)
-            const ctxStudyTime = document.getElementById('studyTimeChart').getContext('2d');
-            const studyTimeChart = new Chart(ctxStudyTime, {
-                type: 'bar',
-                data: {
-                    labels: ['Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă', 'Duminică'],
-                    datasets: [{
-                        label: 'Ore studiate',
-                        data: [3, 4, 2, 5, 6, 7, 4],
-                        backgroundColor: '#4361ee',
-                        borderRadius: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { drawBorder: false }
-                        },
-                        x: {
-                            grid: { display: false }
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
+<section>
+    <h3>Timp studiat per materie</h3>
+    <canvas id="timePerSubjectChart"></canvas>
+</section>
 
-            // Time Per Subject Chart
-            function drawTimePerSubjectChart() {
-                const ctx = document.getElementById('timePerSubjectChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Matematică', 'Fizică', 'Biologie', 'Istorie'],
-                        datasets: [{
-                            label: 'Ore studiate',
-                            data: [12, 9, 5, 3],
-                            backgroundColor: [
-                                '#4361ee',
-                                '#3f37c9',
-                                '#f72585',
-                                '#4cc9f0'
-                            ],
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { drawBorder: false }
-                            },
-                            x: { grid: { display: false } }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            }
+<section>
+    <h3>Progres săptămânal</h3>
+    <canvas id="weeklyGoalChart"></canvas>
+</section>
 
-            // Weekly Goal Chart (ApexCharts Radial)
-            function drawWeeklyGoalChart() {
-                var options = {
-                    chart: {
-                        height: 280,
-                        type: 'radialBar',
-                    },
-                    series: [80], // 80% progress towards weekly goal
-                    labels: ['Obiectiv săptămânal'],
-                    colors: ['#f72585'],
-                    plotOptions: {
-                        radialBar: {
-                            hollow: {
-                                size: '70%',
-                            },
-                            dataLabels: {
-                                name: {
-                                    fontSize: '20px',
-                                    color: '#212529',
-                                    offsetY: -10
-                                },
-                                value: {
-                                    fontSize: '36px',
-                                    color: '#f72585',
-                                    offsetY: 10,
-                                    formatter: function (val) {
-                                        return val + '%';
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    fill: {
-                        type: 'gradient',
-                        gradient: {
-                            shade: 'light',
-                            shadeIntensity: 0.4,
-                            gradientToColors: ['#b5179e'],
-                            inverseColors: true,
-                            opacityFrom: 1,
-                            opacityTo: 1,
-                            stops: [0, 100]
-                        }
-                    },
-                    stroke: {
-                        lineCap: 'round'
-                    }
-                };
+<script type="module">
+import { 
+    getFirestore, collection, query, where, getDocs 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-                var chart = new ApexCharts(document.querySelector("#weeklyGoalChart"), options);
-                chart.render();
-            }
+// Firebase Config (use your config here)
+const firebaseConfig = {
+    apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
+    authDomain: "thinkr-298dd.firebaseapp.com",
+    projectId: "thinkr-298dd",
+    storageBucket: "thinkr-298dd.appspot.com",
+    messagingSenderId: "1087091426997",
+    appId: "1:1087091426997:web:4e080caec0181377aa60fc",
+    measurementId: "G-N20TE0F9VT"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-            // Update Clock every second
-            function updateClock() {
-                const clock = document.getElementById('clock');
-                const now = new Date();
-                const h = String(now.getHours()).padStart(2, '0');
-                const m = String(now.getMinutes()).padStart(2, '0');
-                const s = String(now.getSeconds()).padStart(2, '0');
-                clock.textContent = `${h}:${m}:${s}`;
-            }
-            setInterval(updateClock, 1000);
-            updateClock();
+const totalHoursEl = document.getElementById('totalHours');
+const subjectsCountEl = document.getElementById('subjectsCount');
+const completedPlansEl = document.getElementById('completedPlans');
 
-            // Initialize charts
-            drawTimePerSubjectChart();
-            drawWeeklyGoalChart();
+let timePerSubjectChart;
+let weeklyGoalChart;
+
+onAuthStateChanged(auth, user => {
+    if (!user) {
+        window.location.href = "auth.html";
+        return;
+    }
+    loadUserStats(user.uid);
+    renderCharts(user.uid);
+});
+
+// Load and display stats (total hours, subjects, completed plans)
+async function loadUserStats(userId) {
+    try {
+        const sessionsQuery = query(collection(db, "studySessions"), where("userId", "==", userId));
+        const sessionsSnapshot = await getDocs(sessionsQuery);
+
+        let totalSeconds = 0;
+        let subjectsSet = new Set();
+
+        sessionsSnapshot.forEach(doc => {
+            const data = doc.data();
+            totalSeconds += data.durationInSeconds;
+            subjectsSet.add(data.subject);
         });
-    </script>
+
+        totalHoursEl.textContent = (totalSeconds / 3600).toFixed(1);
+        subjectsCountEl.textContent = subjectsSet.size;
+
+        const plansQuery = query(collection(db, "studyPlans"), where("userId", "==", userId));
+        const plansSnapshot = await getDocs(plansQuery);
+        completedPlansEl.textContent = plansSnapshot.size;
+
+    } catch (err) {
+        console.error("Error loading user stats:", err);
+    }
+}
+
+// Render charts based on study session data
+async function renderCharts(userId) {
+    try {
+        const sessionsQuery = query(collection(db, "studySessions"), where("userId", "==", userId));
+        const sessionsSnapshot = await getDocs(sessionsQuery);
+
+        const subjectDurations = {};
+        const weeklyDurations = {};
+
+        sessionsSnapshot.forEach(doc => {
+            const data = doc.data();
+            const subject = data.subject || "Nespecificat";
+            const duration = data.durationInSeconds || 0;
+
+            // Accumulate time per subject
+            subjectDurations[subject] = (subjectDurations[subject] || 0) + duration;
+
+            // Accumulate time per day (for last 7 days)
+            const startDate = data.startTime.toDate();
+            const dayKey = startDate.toISOString().substring(0, 10); // YYYY-MM-DD
+            weeklyDurations[dayKey] = (weeklyDurations[dayKey] || 0) + duration;
+        });
+
+        drawTimePerSubjectChart(subjectDurations);
+        drawWeeklyGoalChart(weeklyDurations);
+
+    } catch (err) {
+        console.error("Error rendering charts:", err);
+    }
+}
+
+function drawTimePerSubjectChart(data) {
+    const ctx = document.getElementById('timePerSubjectChart').getContext('2d');
+
+    const labels = Object.keys(data);
+    const durations = labels.map(subject => (data[subject] / 3600).toFixed(2)); // hours
+
+    if (timePerSubjectChart) timePerSubjectChart.destroy();
+
+    timePerSubjectChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Ore studiate',
+                data: durations,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Ore' } }
+            }
+        }
+    });
+}
+
+function drawWeeklyGoalChart(data) {
+    const ctx = document.getElementById('weeklyGoalChart').getContext('2d');
+
+    // Prepare last 7 days labels
+    const last7Days = [];
+    for(let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        last7Days.push(d.toISOString().substring(0, 10));
+    }
+
+    // Map durations to last 7 days (hours)
+    const durations = last7Days.map(day => ((data[day] || 0) / 3600).toFixed(2));
+
+    if (weeklyGoalChart) weeklyGoalChart.destroy();
+
+    weeklyGoalChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last7Days,
+            datasets: [{
+                label: 'Ore studiate pe zi',
+                data: durations,
+                fill: true,
+                backgroundColor: 'rgba(255, 206, 86, 0.3)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                tension: 0.3,
+                pointRadius: 5,
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Ore' } }
+            }
+        }
+    });
+}
+</script>
+
 </body>
 </html>
