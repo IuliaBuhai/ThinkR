@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Dashboard | Thinkr</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script type="module" src="app.js" defer></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard - Thinkr</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Include Chart.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -371,198 +369,140 @@
 </head>
 <body>
     <header>
-        <div class="logo">Thinkr</div>
-        <button id="logout">Logout</button>
+        <h1>Dashboard</h1>
+        <button id="logout">Ieșire</button>
     </header>
 
-    <div class="dashboard">
-        <div class="sidebar">
-            <div class="nav-item active">
-                <i>📊</i> Dashboard
+    <main>
+        <section class="stats-overview">
+            <div class="stat-card">
+                <h2>Total ore studiu</h2>
+                <p id="totalHours">0</p>
             </div>
-            <div class="nav-item">
-                <a href="generator_planuri.html"><i>📚</i> Study Plans</a>
+            <div class="stat-card">
+                <h2>Număr materii</h2>
+                <p id="subjectsCount">0</p>
             </div>
-            <div class="nav-item">
-                <a href="tracker.html"><i>⏱️</i> Study TrackeR</a>
+            <div class="stat-card">
+                <h2>Planuri finalizate</h2>
+                <p id="completedPlans">0</p>
             </div>
-            <div class="nav-item">
-                <a href="articole.html"><i>📈</i> Articole</a>
-            </div>
-            <div class="nav-item">
-                <a href="index.html"><i>⚙️</i> Acasa</a>
-            </div>
-        </div>
+        </section>
 
-        <div class="main-content">
-            <div class="dashboard-grid">
-        
-                  
-                <!-- Study Time Chart -->
-                <div class="card chart-container">
-                    <div class="card-header">
-                        <h3 class="card-title">Timp studiat această săptămână</h3>
-                        <div class="card-actions">
-                            <button class="btn btn-primar">Săptămână</button>
-                            
-                        </div>
-                    </div>
-                    <canvas id="studyTimeChart"></canvas>
-                </div>  
-                <!-- Current Sessions -->
-                <div class="card study-sessions">
-                    <div class="card-header">
-                        <h3 class="card-title">Sesiuni active studiat</h3>
-                    </div>
-                    <div id="currentSession">
-                        <div class="session-info">
-                            <div style="font-size: 2rem; text-align: center; margin: 1rem 0;" id="studyTimer">00:00:00</div>
-                            <div style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Subject</label>
-                                <select id="studySubject" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #dee2e6;">
-                                    <option value="">Alege un subiect</option>
-                                    <!-- Will be populated by JS -->
-                                </select>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button id="startStudy" class="btn btn-primary" style="flex: 1;">Start</button>
-                                <button id="stopStudy" class="btn btn-outline" style="flex: 1;" disabled>Stop</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Generated Study Plan -->
-                <div class="card study-plan-container">
-                    <div class="card-header">
-                        <h3 class="card-title">Planuri generate</h3>
-                        <a href="generator_planuri.html"><newPlanBtn" class="btn btn-primary">Plan nou</button></a>
-                    </div>
-                    <div id="generatedPlan">
-                        <div style="text-align: center; padding: 2rem; color: #6c757d;">
-                            <p>Generează un nou plan</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Previous Plans -->
-                <div class="card study-plan-container">
-                    <div class="card-header">
-                        <h3 class="card-title">Planurile tale</h3>
-                        
-                    </div>
-                    <div id="plansList" class="plans-list">
-                        <!-- Will be populated by JS -->
-                    </div>
-                </div>
-
-                <!-- Session History -->
-                <div class="card session-history">
-                    <div class="card-header">
-                        <h3 class="card-title">Sesiuni recente studiat</h3>
-                        <div class="card-actions">
-                            <button class="btn btn-outline">Vezi toate</button>
-                        </div>
-                    </div>
-                    <div id="studyHistory">
-                        <table class="session-table">
-                            <thead>
-                                <tr>
-                                    <th>Subiect</th>
-                                    <th>Dată</th>
-                                    <th>Durată</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Will be populated by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <section class="charts-section">
+            <div class="chart-container">
+                <h3>Timp de studiu pe materie</h3>
+                <canvas id="timePerSubjectChart"></canvas>
             </div>
 
+            <div class="chart-container">
+                <h3>Obiective săptămânale</h3>
+                <canvas id="weeklyGoalChart"></canvas>
+            </div>
+        </section>
 
+        <section id="studyHistory" class="study-history">
+           
+        </section>
+    </main>
 
-            <canvas id="timePerSubjectChart" width="400" height="200"></canvas>
-            <canvas id="weeklyGoalChart" width="400" height="200"></canvas>
-
-        </div>
-    </div>
-
+    <script type="module" src="app.js"></script>
     <script>
-        // Initialize charts
-        document.addEventListener('DOMContentLoaded', function() {
-            function drawWeeklyGoalChart(sessionData) {
-                const now = new Date();
-                const startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+        
+        let timePerSubjectChart;
+        let weeklyGoalChart;
 
-                const weeklySessions = sessionData.filter(s =>
-                    s.date >= startOfWeek && s.date <= now
-                );
+        function drawTimePerSubjectChart(data) {
+            const ctx = document.getElementById('timePerSubjectChart').getContext('2d');
 
-                const totalWeeklyHours = weeklySessions.reduce((sum, s) => sum + s.duration, 0) / 3600;
+            const subjectMap = {};
+            data.forEach(({ subject, duration }) => {
+                subjectMap[subject] = (subjectMap[subject] || 0) + duration / 3600;
+            });
 
-                const ctx = document.getElementById('weeklyGoalChart').getContext('2d');
-                
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Studiate', 'Rămase'],
-                            datasets: [{
-                                label: 'Obiectiv Săptămânal',
-                                data: [totalWeeklyHours, Math.max(0, 10 - totalWeeklyHours)],
-                                backgroundColor: ['#10B981', '#E5E7EB']
-                            }]
-                        },
-                        options: {
-                            plugins: {
-                                title: {
-                                    display: true,
-                                    text: 'Obiectiv: 10 ore/săptămână'
-                                }
-                            }
-                        }
-                    });
-                }
+            const labels = Object.keys(subjectMap);
+            const durations = Object.values(subjectMap);
 
-
-            function drawTimePerSubjectChart(sessionData) {
-    const subjectMap = {};
-
-    sessionData.forEach(({ subject, duration }) => {
-        subjectMap[subject] = (subjectMap[subject] || 0) + duration;
-    });
-
-    const labels = Object.keys(subjectMap);
-    const data = Object.values(subjectMap).map(sec => (sec / 3600).toFixed(2)); // in hours
-
-    const ctx = document.getElementById('timePerSubjectChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Ore petrecute per materie',
-                data,
-                backgroundColor: '#4F46E5'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Timp total per materie'
-                }
+            if (timePerSubjectChart) {
+                timePerSubjectChart.destroy();
             }
-        }
-    });
-}
 
-
+            timePerSubjectChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Ore studiu',
+                        data: durations,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Ore' }
+                        }
+                    }
+                }
+            });
         }
+
+        function drawWeeklyGoalChart(data) {
+            const ctx = document.getElementById('weeklyGoalChart').getContext('2d');
+
+        
+            const weekMap = {};
+
+            data.forEach(({ date, duration }) => {
+                const d = new Date(date);
+                const year = d.getFullYear();
+               
+                const oneJan = new Date(d.getFullYear(),0,1);
+                const numberOfDays = Math.floor((d - oneJan) / (24 * 60 * 60 * 1000));
+                const week = Math.ceil(( numberOfDays + oneJan.getDay() + 1) / 7);
+
+                const key = `${year}-W${week}`;
+
+                weekMap[key] = (weekMap[key] || 0) + duration / 3600;
+            });
+
+     
+            const sortedWeeks = Object.keys(weekMap).sort();
+            const durations = sortedWeeks.map(week => weekMap[week]);
+
+            if (weeklyGoalChart) {
+                weeklyGoalChart.destroy();
+            }
+
+            weeklyGoalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedWeeks,
+                    datasets: [{
+                        label: 'Ore studiu pe săptămână',
+                        data: durations,
+                        fill: false,
+                        borderColor: 'rgba(255, 99, 132, 0.8)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Ore' }
+                        }
+                    }
+                }
+            });
+        }
+
+       
+        window.drawTimePerSubjectChart = drawTimePerSubjectChart;
+        window.drawWeeklyGoalChart = drawWeeklyGoalChart;
     </script>
 </body>
 </html>
