@@ -300,22 +300,27 @@ async function loadUserStats(userId) {
     }
 }
 
-async function renderCharts(userId){
-    const sessionQuery= query(collection(db, "studySessions", where("userId", "==", userId));
-    const sessionsSnapshot=await detDocs(sessionsQuery);
-    const sessionData=[];
+async function renderCharts(userId) {
+    const sessionsQuery = query(
+        collection(db, "studySessions"),
+        where("userId", "==", userId)
+    );
+    const sessionsSnapshot = await getDocs(sessionsQuery);
+    const sessionData = [];
 
-    sessionSnapshot.forEach(doc => {
+    sessionsSnapshot.forEach(doc => {
         const data = doc.data();
         sessionData.push({
-            subject:data.subject,
-            duration: data.durationInSeconds, 
+            subject: data.subject,
+            duration: data.durationInSeconds,
             date: data.startTime.toDate()
         });
-});
-        drawTimePerSubjectChart(sessionData);
-        drawWeeklyGoalChart(sessionData);
+    });
+
+    drawTimePerSubjectChart(sessionData);
+    drawWeeklyGoalChart(sessionData);
 }
+
     
 async function loadStudyHistory(userId) {
     if (!elements.studyHistory) {
