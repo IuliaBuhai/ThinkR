@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             if (window.location.pathname.includes('auth.html') || window.location.pathname === '/') {
                 window.location.href = 'dashboard.html';
+                renderCharts(user.uid);
             }
             loadUserStats(user.uid);
             loadStudyHistory(user.uid);
@@ -241,6 +242,7 @@ function setupStudyTracker() {
                 alert(`Sesiunea de studiu pentru ${currentSubject} a fost salvată!`);
                 loadStudyHistory(currentUser.uid);
                 loadUserStats(currentUser.uid);
+                renderCharts(currentUser.uid);
             } catch (error) {
                 console.error("Error saving study session:", error);
                 alert("Eroare la salvarea sesiunii. Vezi consola pentru detalii.");
@@ -298,6 +300,23 @@ async function loadUserStats(userId) {
     }
 }
 
+async function renderCharts(userId){
+    const sessionQuery= query(collection(db, "studySessions", where("userId", "==", userId));
+    const sessionsSnapshot=await detDocs(sessionsQuery);
+    const sessionData=[];
+
+    sessionSnapshot.forEach(doc => {
+        const data = doc.data();
+        sessionData.push({
+            subject:data.subject,
+            duration: data.durationInSeconds, 
+            date: data.startTime.toDate()
+        });
+});
+        drawTimePerSubjectChart(sessionData);
+        drawWeeklyGoalChart(sessionData);
+}
+    
 async function loadStudyHistory(userId) {
     if (!elements.studyHistory) {
         console.error("Study history element not found");
