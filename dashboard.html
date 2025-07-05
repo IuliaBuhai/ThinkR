@@ -396,38 +396,8 @@
 
         <div class="main-content">
             <div class="dashboard-grid">
-                <!-- Stats Cards -->
-                <!-- <div class="stats-grid">
-                    <div class="card stat-card">
-                        <div class="stat-label">Total de ore studiate</div>
-                        <div class="stat-value">127</div>
-                        <div class="stat-change up">
-                            <span>↑ 12% from last week</span>
-                        </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-label">Planuri Complete</div>
-                        <div class="stat-value">18</div>
-                        <div class="stat-change up">
-                            <span>↑ 5% from last week</span>
-                        </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-label">Streak</div>
-                        <div class="stat-value">7</div>
-                        <div class="stat-change down">
-                            <span>↓ 2 days</span>
-                        </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-label">Materii</div>
-                        <div class="stat-value">9</div>
-                        <div class="stat-change up">
-                            <span>↑ 3 new</span>
-                        </div>
-                    </div>
-                </div>
-
+        
+                  
                 <!-- Study Time Chart -->
                 <div class="card chart-container">
                     <div class="card-header">
@@ -523,53 +493,76 @@
     <script>
         // Initialize charts
         document.addEventListener('DOMContentLoaded', function() {
-            // Study Time Chart
-            const ctx = document.getElementById('studyTimeChart').getContext('2d');
-            const studyTimeChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Study Hours',
-                        data: [3, 5, 2, 4, 6, 1, 2],
-                        backgroundColor: '#4361ee',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                drawBorder: false
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+            function drawWeeklyGoalChart(sessionData) {
+                const now = new Date();
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
 
-            // Subject Distribution Chart (example - you can replace with real data)
-            const subjectData = {
-                "Matematică": 15,
-                "Fizică": 8,
-                "Chimie": 6,
-                "Biologie": 10,
-                "Istorie": 5,
-                "Franceză": 7
-            };
-        });
+                const weeklySessions = sessionData.filter(s =>
+                    s.date >= startOfWeek && s.date <= now
+                );
+
+                const totalWeeklyHours = weeklySessions.reduce((sum, s) => sum + s.duration, 0) / 3600;
+
+                const ctx = document.getElementById('weeklyGoalChart').getContext('2d');
+                
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Studiate', 'Rămase'],
+                            datasets: [{
+                                label: 'Obiectiv Săptămânal',
+                                data: [totalWeeklyHours, Math.max(0, 10 - totalWeeklyHours)],
+                                backgroundColor: ['#10B981', '#E5E7EB']
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Obiectiv: 10 ore/săptămână'
+                                }
+                            }
+                        }
+                    });
+                }
+
+
+            function drawTimePerSubjectChart(sessionData) {
+    const subjectMap = {};
+
+    sessionData.forEach(({ subject, duration }) => {
+        subjectMap[subject] = (subjectMap[subject] || 0) + duration;
+    });
+
+    const labels = Object.keys(subjectMap);
+    const data = Object.values(subjectMap).map(sec => (sec / 3600).toFixed(2)); // in hours
+
+    const ctx = document.getElementById('timePerSubjectChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Ore petrecute per materie',
+                data,
+                backgroundColor: '#4F46E5'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Timp total per materie'
+                }
+            }
+        }
+    });
+}
+
+
+        }
     </script>
 </body>
 </html>
