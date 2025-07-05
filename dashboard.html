@@ -3,205 +3,249 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard - Thinkr</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        #stats { display: flex; gap: 2rem; margin-bottom: 2rem; }
-        .stat { background: #f0f0f0; padding: 1rem 2rem; border-radius: 8px; flex: 1; text-align: center; }
-        canvas { max-width: 100%; height: 300px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        #studyHistory {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+        .session-card {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .session-card:last-child {
+            border-bottom: none;
+        }
+        .subject-badge {
+            background: #3498db;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .date-badge {
+            font-size: 0.85em;
+            color: #777;
+        }
+        .time-info, .duration-info {
+            font-size: 0.85em;
+            color: #555;
+            margin-left: 10px;
+        }
+        #addSessionForm {
+            margin-top: 30px;
+            max-width: 600px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #addSessionForm label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        #addSessionForm select, #addSessionForm input[type="text"], #addSessionForm input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        #addSessionForm button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #addSessionForm button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        #stopwatch {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #startStopBtn {
+            margin-top: 10px;
+            padding: 8px 15px;
+            font-size: 1em;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #startStopBtn.stopped {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
+    <h1>Bine ai venit pe Dashboard!</h1>
 
-<h1>Dashboard</h1>
+    <section id="studyHistory">
+        <h2>Istoric Sesiuni de Studiu</h2>
+        <!-- History will load here -->
+        <p>Se încarcă istoricul...</p>
+    </section>
 
-<div id="stats">
-    <div class="stat">
-        <h2 id="totalHours">0</h2>
-        <p>Ore totale studiate</p>
-    </div>
-    <div class="stat">
-        <h2 id="subjectsCount">0</h2>
-        <p>Materii studiate</p>
-    </div>
-    <div class="stat">
-        <h2 id="completedPlans">0</h2>
-        <p>Planuri completate</p>
-    </div>
-</div>
+    <section id="addSessionForm">
+        <h2>Adaugă manual o sesiune de studiu</h2>
 
-<section>
-    <h3>Timp studiat per materie</h3>
-    <canvas id="timePerSubjectChart"></canvas>
-</section>
+        <label for="subjectManual">Materie</label>
+        <select id="subjectManual" required>
+            <option value="" disabled selected>Selectează materia</option>
+            <option>Matematică</option>
+            <option>Limba Română</option>
+            <option>Limba Engleză</option>
+            <option>Fizică</option>
+            <option>Chimie</option>
+            <option>Biologie</option>
+            <option>Istorie</option>
+            <option>Geografie</option>
+            <option>Informatică</option>
+            <option>Alte Materii</option>
+        </select>
 
-<section>
-    <h3>Progres săptămânal</h3>
-    <canvas id="weeklyGoalChart"></canvas>
-</section>
+        <label for="startManual">Început (data și ora)</label>
+        <input type="datetime-local" id="startManual" required />
 
-<script type="module">
-import { 
-    getFirestore, collection, query, where, getDocs 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        <label for="durationManual">Durata (minute)</label>
+        <input type="number" id="durationManual" min="1" max="1440" value="30" required />
 
-// Firebase Config (use your config here)
-const firebaseConfig = {
-    apiKey: "AIzaSyDXwRE-7Cxr6YKE6MPKB7m9aC4xbirkRVY",
-    authDomain: "thinkr-298dd.firebaseapp.com",
-    projectId: "thinkr-298dd",
-    storageBucket: "thinkr-298dd.appspot.com",
-    messagingSenderId: "1087091426997",
-    appId: "1:1087091426997:web:4e080caec0181377aa60fc",
-    measurementId: "G-N20TE0F9VT"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+        <div id="stopwatch">00:00:00</div>
+        <button id="startStopBtn">Pornește Cronometru</button>
 
-const totalHoursEl = document.getElementById('totalHours');
-const subjectsCountEl = document.getElementById('subjectsCount');
-const completedPlansEl = document.getElementById('completedPlans');
+        <button id="saveManualBtn" disabled>Salvează sesiunea</button>
+    </section>
 
-let timePerSubjectChart;
-let weeklyGoalChart;
+    <script type="module" src="app.js"></script>
+    <script>
+        import { Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-onAuthStateChanged(auth, user => {
-    if (!user) {
-        window.location.href = "auth.html";
-        return;
-    }
-    loadUserStats(user.uid);
-    renderCharts(user.uid);
-});
+        const historyEl = document.getElementById('studyHistory');
+        const subjectManual = document.getElementById('subjectManual');
+        const startManual = document.getElementById('startManual');
+        const durationManual = document.getElementById('durationManual');
+        const stopwatchEl = document.getElementById('stopwatch');
+        const startStopBtn = document.getElementById('startStopBtn');
+        const saveManualBtn = document.getElementById('saveManualBtn');
 
-// Load and display stats (total hours, subjects, completed plans)
-async function loadUserStats(userId) {
-    try {
-        const sessionsQuery = query(collection(db, "studySessions"), where("userId", "==", userId));
-        const sessionsSnapshot = await getDocs(sessionsQuery);
+        let timerInterval = null;
+        let elapsedSeconds = 0;
+        let isRunning = false;
+        let manualStartTime = null;
 
-        let totalSeconds = 0;
-        let subjectsSet = new Set();
-
-        sessionsSnapshot.forEach(doc => {
-            const data = doc.data();
-            totalSeconds += data.durationInSeconds;
-            subjectsSet.add(data.subject);
+        // Load history on page load using your global function
+        window.addEventListener('load', () => {
+            if (window.app?.currentUser) {
+                window.app.loadStudyHistory(window.app.currentUser.uid);
+            }
         });
 
-        totalHoursEl.textContent = (totalSeconds / 3600).toFixed(1);
-        subjectsCountEl.textContent = subjectsSet.size;
+        // Stopwatch controls
+        startStopBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                // Start timer
+                isRunning = true;
+                manualStartTime = new Date();
+                startStopBtn.textContent = 'Oprește Cronometru';
+                startStopBtn.classList.add('stopped');
+                saveManualBtn.disabled = true;
 
-        const plansQuery = query(collection(db, "studyPlans"), where("userId", "==", userId));
-        const plansSnapshot = await getDocs(plansQuery);
-        completedPlansEl.textContent = plansSnapshot.size;
+                timerInterval = setInterval(() => {
+                    elapsedSeconds++;
+                    stopwatchEl.textContent = formatTime(elapsedSeconds);
+                }, 1000);
 
-    } catch (err) {
-        console.error("Error loading user stats:", err);
-    }
-}
+                // Set start time input to now
+                startManual.value = manualStartTime.toISOString().slice(0,16);
+            } else {
+                // Stop timer
+                isRunning = false;
+                startStopBtn.textContent = 'Pornește Cronometru';
+                startStopBtn.classList.remove('stopped');
+                clearInterval(timerInterval);
+                timerInterval = null;
 
-// Render charts based on study session data
-async function renderCharts(userId) {
-    try {
-        const sessionsQuery = query(collection(db, "studySessions"), where("userId", "==", userId));
-        const sessionsSnapshot = await getDocs(sessionsQuery);
-
-        const subjectDurations = {};
-        const weeklyDurations = {};
-
-        sessionsSnapshot.forEach(doc => {
-            const data = doc.data();
-            const subject = data.subject || "Nespecificat";
-            const duration = data.durationInSeconds || 0;
-
-            // Accumulate time per subject
-            subjectDurations[subject] = (subjectDurations[subject] || 0) + duration;
-
-            // Accumulate time per day (for last 7 days)
-            const startDate = data.startTime.toDate();
-            const dayKey = startDate.toISOString().substring(0, 10); // YYYY-MM-DD
-            weeklyDurations[dayKey] = (weeklyDurations[dayKey] || 0) + duration;
+                durationManual.value = Math.max(1, Math.floor(elapsedSeconds / 60));
+                saveManualBtn.disabled = false;
+            }
         });
 
-        drawTimePerSubjectChart(subjectDurations);
-        drawWeeklyGoalChart(weeklyDurations);
-
-    } catch (err) {
-        console.error("Error rendering charts:", err);
-    }
-}
-
-function drawTimePerSubjectChart(data) {
-    const ctx = document.getElementById('timePerSubjectChart').getContext('2d');
-
-    const labels = Object.keys(data);
-    const durations = labels.map(subject => (data[subject] / 3600).toFixed(2)); // hours
-
-    if (timePerSubjectChart) timePerSubjectChart.destroy();
-
-    timePerSubjectChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Ore studiate',
-                data: durations,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Ore' } }
+        // Save manual session
+        saveManualBtn.addEventListener('click', async () => {
+            if (!window.app?.currentUser) {
+                alert('Trebuie să fii autentificat pentru a salva sesiuni.');
+                return;
             }
-        }
-    });
-}
+            const userId = window.app.currentUser.uid;
+            const subject = subjectManual.value;
+            const startValue = startManual.value;
+            const durationMins = Number(durationManual.value);
 
-function drawWeeklyGoalChart(data) {
-    const ctx = document.getElementById('weeklyGoalChart').getContext('2d');
-
-    // Prepare last 7 days labels
-    const last7Days = [];
-    for(let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        last7Days.push(d.toISOString().substring(0, 10));
-    }
-
-    // Map durations to last 7 days (hours)
-    const durations = last7Days.map(day => ((data[day] || 0) / 3600).toFixed(2));
-
-    if (weeklyGoalChart) weeklyGoalChart.destroy();
-
-    weeklyGoalChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: last7Days,
-            datasets: [{
-                label: 'Ore studiate pe zi',
-                data: durations,
-                fill: true,
-                backgroundColor: 'rgba(255, 206, 86, 0.3)',
-                borderColor: 'rgba(255, 206, 86, 1)',
-                tension: 0.3,
-                pointRadius: 5,
-            }]
-        },
-        options: {
-            scales: {
-                y: { beginAtZero: true, title: { display: true, text: 'Ore' } }
+            if (!subject || !startValue || !durationMins || durationMins <= 0) {
+                alert('Completează toate câmpurile corect!');
+                return;
             }
-        }
-    });
-}
-</script>
 
+            const startDate = new Date(startValue);
+            if (isNaN(startDate)) {
+                alert('Data de început este invalidă!');
+                return;
+            }
+
+            const endDate = new Date(startDate.getTime() + durationMins * 60000);
+            const durationSecs = durationMins * 60;
+
+            try {
+                await window.app.saveStudySession(
+                    userId,
+                    subject,
+                    startDate,
+                    endDate,
+                    durationSecs
+                );
+                alert('Sesiunea a fost salvată cu succes!');
+                window.app.loadStudyHistory(userId);
+                window.app.loadUserStats(userId);
+                elapsedSeconds = 0;
+                stopwatchEl.textContent = '00:00:00';
+                durationManual.value = 30;
+                saveManualBtn.disabled = true;
+            } catch (e) {
+                alert('Eroare la salvarea sesiunii: ' + e.message);
+            }
+        });
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        }
+    </script>
 </body>
 </html>
