@@ -510,7 +510,6 @@
                 </div>
             </div>
         </div>
-        <canvas id="studyTimeChart" width="400" height="200"></canvas>
         <canvas id="subjectDistributionChart" width="400" height="200"></canvas>
 
     </div>
@@ -526,52 +525,7 @@
                 }
             });
 
-            const ctx = document.getElementById('studyTimeChart').getContext('2d');
-            const studyTimeChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Study Hours',
-                        data: [3, 5, 2, 4, 6, 1, 2],
-                        backgroundColor: '#4361ee',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                drawBorder: false
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-
-            // Subject Distribution Chart (example - you can replace with real data)
-            const subjectData = {
-                "Matematică": 15,
-                "Fizică": 8,
-                "Chimie": 6,
-                "Biologie": 10,
-                "Istorie": 5,
-                "Franceză": 7
-            };
-        });
+        
     </script>
 </body>
 </html>
