@@ -1,7 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-
+import { db } from './app.js';  // adjust the path if needed
+import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // STEP 1: Render charts from Firestore data
 export async function renderCharts(userId) {
@@ -27,13 +25,12 @@ export async function renderCharts(userId) {
 
 // STEP 2: Weekly Goal Chart (Bar)
 function drawWeeklyGoalChart(data) {
-    // Group durations by day of week (Mon–Sun)
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const hoursByDay = Array(7).fill(0); // [0, 0, ..., 0]
+    const hoursByDay = Array(7).fill(0);
 
     data.forEach(session => {
-        const day = session.date.getDay(); // Sunday=0 ... Saturday=6
-        const index = (day + 6) % 7; // Shift so Mon=0, Sun=6
+        const day = session.date.getDay();
+        const index = (day + 6) % 7; // shift Sunday(0) to index 6
         hoursByDay[index] += session.duration / 3600;
     });
 
@@ -54,21 +51,10 @@ function drawWeeklyGoalChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
+                y: { beginAtZero: true, grid: { drawBorder: false } },
+                x: { grid: { display: false } }
             },
-            plugins: {
-                legend: { display: false }
-            }
+            plugins: { legend: { display: false } }
         }
     });
 }
@@ -102,9 +88,7 @@ function drawTimePerSubjectChart(data) {
         options: {
             responsive: true,
             plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+                legend: { position: 'bottom' }
             }
         }
     });
