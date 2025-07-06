@@ -510,13 +510,22 @@
                 </div>
             </div>
         </div>
-        
+        <canvas id="studyTimeChart" width="400" height="200"></canvas>
+        <canvas id="subjectDistributionChart" width="400" height="200"></canvas>
+
     </div>
 
     <script>
         // Initialize charts
         document.addEventListener('DOMContentLoaded', function() {
-            // Study Time Chart
+            import { renderCharts } from "./charts.js";
+
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    renderCharts(user.uid);
+                }
+            });
+
             const ctx = document.getElementById('studyTimeChart').getContext('2d');
             const studyTimeChart = new Chart(ctx, {
                 type: 'bar',
