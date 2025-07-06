@@ -525,6 +525,8 @@
         onAuthStateChanged(auth, user => {
             if (user) {
                 renderCharts(user.uid);
+                console.log("Loaded sessions:", sessionData);
+
             } else {
                 window.location.href = 'login.html'; 
             }
