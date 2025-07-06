@@ -1,251 +1,568 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Dashboard | Thinkr</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script type="module" src="app.js" defer></script>
     <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #ef233c;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f9f9f9;
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
         }
-        h1, h2 {
-            color: #2c3e50;
-        }
-        #studyHistory {
-            margin-top: 20px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            max-width: 600px;
-        }
-        .session-card {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .session-card:last-child {
-            border-bottom: none;
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
         }
-        .subject-badge {
-            background: #3498db;
+
+        #logout {
+            background-color: var(--light);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #logout:hover {
+            background-color: var(--danger);
             color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.9em;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: calc(100vh - 60px);
+        }
+
+        .sidebar {
+            background-color: white;
+            padding: 1.5rem;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: #f8f9fa;
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-outline:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.up {
+            color: #2ecc71;
+        }
+
+        .stat-change.down {
+            color: var(--danger);
+        }
+
+        /* Charts */
+        .chart-container {
+            grid-column: span 8;
+            height: 350px;
+        }
+
+        .study-sessions {
+            grid-column: span 4;
+        }
+
+        /* Study Plan */
+        .study-plan-container {
+            grid-column: span 12;
+        }
+
+        .plan-card {
+            border-left: 4px solid var(--primary);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Session History */
+        .session-history {
+            grid-column: span 12;
+        }
+
+        .session-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .session-table th, .session-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .session-table th {
+            font-weight: 600;
+            color: #495057;
+            background-color: #f8f9fa;
+        }
+
+        .session-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
             font-weight: 600;
         }
-        .date-badge {
-            font-size: 0.85em;
-            color: #777;
+
+        .badge-primary {
+            background-color: #e3f2fd;
+            color: var(--primary);
         }
-        .time-info, .duration-info {
-            font-size: 0.85em;
-            color: #555;
-            margin-left: 10px;
+
+        .study-history-container {
+    font-family: 'Segoe UI', sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.history-title {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.session-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.subject-badge {
+    background: #3498db;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.date-badge {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+}
+
+.session-body {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.time-info, .duration-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+}
+
+.spinner {
+    /* Add your spinner animation here */
+}
+
+.empty-state, .error-state {
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+}
+
+.retry-button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-container, .study-sessions {
+                grid-column: span 12;
+            }
         }
-        #addSessionForm {
-            margin-top: 30px;
-            max-width: 600px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
-        #addSessionForm label {
-            display: block;
-            margin: 10px 0 5px;
+        a {
+            text-decoration: none;
         }
-        #addSessionForm select, #addSessionForm input[type="text"], #addSessionForm input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 1em;
-        }
-        #addSessionForm button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 1em;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #addSessionForm button:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-        }
-        #stopwatch {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        #startStopBtn {
-            margin-top: 10px;
-            padding: 8px 15px;
-            font-size: 1em;
-            background: #2980b9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #startStopBtn.stopped {
-            background: #c0392b;
-        }
+
+
+        
     </style>
 </head>
 <body>
-    <h1>Bine ai venit pe Dashboard!</h1>
+    <header>
+        <div class="logo">Thinkr</div>
+        <button id="logout">Logout</button>
+    </header>
 
-    <section id="studyHistory">
-        <h2>Istoric Sesiuni de Studiu</h2>
-        <!-- History will load here -->
-        <p>Se încarcă istoricul...</p>
-    </section>
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="nav-item active">
+                <i>📊</i> Dashboard
+            </div>
+            <div class="nav-item">
+                <a href="generator_planuri.html"><i>📚</i> Study Plans</a>
+            </div>
+            <div class="nav-item">
+                <a href="tracker.html"><i>⏱️</i> Study TrackeR</a>
+            </div>
+            <div class="nav-item">
+                <a href="articole.html"><i>📈</i> Articole</a>
+            </div>
+            <div class="nav-item">
+                <a href="index.html"><i>⚙️</i> Acasa</a>
+            </div>
+        </div>
 
-    <section id="addSessionForm">
-        <h2>Adaugă manual o sesiune de studiu</h2>
+        <div class="main-content">
+            <div class="dashboard-grid">
+                <!-- Stats Cards -->
+                <!-- <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div class="stat-label">Total de ore studiate</div>
+                        <div class="stat-value">127</div>
+                        <div class="stat-change up">
+                            <span>↑ 12% from last week</span>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-label">Planuri Complete</div>
+                        <div class="stat-value">18</div>
+                        <div class="stat-change up">
+                            <span>↑ 5% from last week</span>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-label">Streak</div>
+                        <div class="stat-value">7</div>
+                        <div class="stat-change down">
+                            <span>↓ 2 days</span>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-label">Materii</div>
+                        <div class="stat-value">9</div>
+                        <div class="stat-change up">
+                            <span>↑ 3 new</span>
+                        </div>
+                    </div>
+                </div>
 
-        <label for="subjectManual">Materie</label>
-        <select id="subjectManual" required>
-            <option value="" disabled selected>Selectează materia</option>
-            <option>Matematică</option>
-            <option>Limba Română</option>
-            <option>Limba Engleză</option>
-            <option>Fizică</option>
-            <option>Chimie</option>
-            <option>Biologie</option>
-            <option>Istorie</option>
-            <option>Geografie</option>
-            <option>Informatică</option>
-            <option>Alte Materii</option>
-        </select>
+                <!-- Study Time Chart -->
+                <div class="card chart-container">
+                    <div class="card-header">
+                        <h3 class="card-title">Timp studiat această săptămână</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-primar">Săptămână</button>
+                            
+                        </div>
+                    </div>
+                    <canvas id="studyTimeChart"></canvas>
+                </div>  
+                <!-- Current Sessions -->
+                <div class="card study-sessions">
+                    <div class="card-header">
+                        <h3 class="card-title">Sesiuni active studiat</h3>
+                    </div>
+                    <div id="currentSession">
+                        <div class="session-info">
+                            <div style="font-size: 2rem; text-align: center; margin: 1rem 0;" id="studyTimer">00:00:00</div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Subject</label>
+                                <select id="studySubject" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #dee2e6;">
+                                    <option value="">Alege un subiect</option>
+                                    <!-- Will be populated by JS -->
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button id="startStudy" class="btn btn-primary" style="flex: 1;">Start</button>
+                                <button id="stopStudy" class="btn btn-outline" style="flex: 1;" disabled>Stop</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <label for="startManual">Început (data și ora)</label>
-        <input type="datetime-local" id="startManual" required />
+                <!-- Generated Study Plan -->
+                <div class="card study-plan-container">
+                    <div class="card-header">
+                        <h3 class="card-title">Planuri generate</h3>
+                        <a href="generator_planuri.html"><newPlanBtn" class="btn btn-primary">Plan nou</button></a>
+                    </div>
+                    <div id="generatedPlan">
+                        <div style="text-align: center; padding: 2rem; color: #6c757d;">
+                            <p>Generează un nou plan</p>
+                        </div>
+                    </div>
+                </div>
 
-        <label for="durationManual">Durata (minute)</label>
-        <input type="number" id="durationManual" min="1" max="1440" value="30" required />
+                <!-- Previous Plans -->
+                <div class="card study-plan-container">
+                    <div class="card-header">
+                        <h3 class="card-title">Planurile tale</h3>
+                        
+                    </div>
+                    <div id="plansList" class="plans-list">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
 
-        <div id="stopwatch">00:00:00</div>
-        <button id="startStopBtn">Pornește Cronometru</button>
+                <!-- Session History -->
+                <div class="card session-history">
+                    <div class="card-header">
+                        <h3 class="card-title">Sesiuni recente studiat</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">Vezi toate</button>
+                        </div>
+                    </div>
+                    <div id="studyHistory">
+                        <table class="session-table">
+                            <thead>
+                                <tr>
+                                    <th>Subiect</th>
+                                    <th>Dată</th>
+                                    <th>Durată</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
 
-        <button id="saveManualBtn" disabled>Salvează sesiunea</button>
-    </section>
-
-    <script type="module" src="app.js"></script>
     <script>
-        import { Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Study Time Chart
+            const ctx = document.getElementById('studyTimeChart').getContext('2d');
+            const studyTimeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Study Hours',
+                        data: [3, 5, 2, 4, 6, 1, 2],
+                        backgroundColor: '#4361ee',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
 
-        const historyEl = document.getElementById('studyHistory');
-        const subjectManual = document.getElementById('subjectManual');
-        const startManual = document.getElementById('startManual');
-        const durationManual = document.getElementById('durationManual');
-        const stopwatchEl = document.getElementById('stopwatch');
-        const startStopBtn = document.getElementById('startStopBtn');
-        const saveManualBtn = document.getElementById('saveManualBtn');
-
-        let timerInterval = null;
-        let elapsedSeconds = 0;
-        let isRunning = false;
-        let manualStartTime = null;
-
-        // Load history on page load using your global function
-        window.addEventListener('load', () => {
-            if (window.app?.currentUser) {
-                window.app.loadStudyHistory(window.app.currentUser.uid);
-            }
+            // Subject Distribution Chart (example - you can replace with real data)
+            const subjectData = {
+                "Matematică": 15,
+                "Fizică": 8,
+                "Chimie": 6,
+                "Biologie": 10,
+                "Istorie": 5,
+                "Franceză": 7
+            };
         });
-
-        // Stopwatch controls
-        startStopBtn.addEventListener('click', () => {
-            if (!isRunning) {
-                // Start timer
-                isRunning = true;
-                manualStartTime = new Date();
-                startStopBtn.textContent = 'Oprește Cronometru';
-                startStopBtn.classList.add('stopped');
-                saveManualBtn.disabled = true;
-
-                timerInterval = setInterval(() => {
-                    elapsedSeconds++;
-                    stopwatchEl.textContent = formatTime(elapsedSeconds);
-                }, 1000);
-
-                // Set start time input to now
-                startManual.value = manualStartTime.toISOString().slice(0,16);
-            } else {
-                // Stop timer
-                isRunning = false;
-                startStopBtn.textContent = 'Pornește Cronometru';
-                startStopBtn.classList.remove('stopped');
-                clearInterval(timerInterval);
-                timerInterval = null;
-
-                durationManual.value = Math.max(1, Math.floor(elapsedSeconds / 60));
-                saveManualBtn.disabled = false;
-            }
-        });
-
-        // Save manual session
-        saveManualBtn.addEventListener('click', async () => {
-            if (!window.app?.currentUser) {
-                alert('Trebuie să fii autentificat pentru a salva sesiuni.');
-                return;
-            }
-            const userId = window.app.currentUser.uid;
-            const subject = subjectManual.value;
-            const startValue = startManual.value;
-            const durationMins = Number(durationManual.value);
-
-            if (!subject || !startValue || !durationMins || durationMins <= 0) {
-                alert('Completează toate câmpurile corect!');
-                return;
-            }
-
-            const startDate = new Date(startValue);
-            if (isNaN(startDate)) {
-                alert('Data de început este invalidă!');
-                return;
-            }
-
-            const endDate = new Date(startDate.getTime() + durationMins * 60000);
-            const durationSecs = durationMins * 60;
-
-            try {
-                await window.app.saveStudySession(
-                    userId,
-                    subject,
-                    startDate,
-                    endDate,
-                    durationSecs
-                );
-                alert('Sesiunea a fost salvată cu succes!');
-                window.app.loadStudyHistory(userId);
-                window.app.loadUserStats(userId);
-                elapsedSeconds = 0;
-                stopwatchEl.textContent = '00:00:00';
-                durationManual.value = 30;
-                saveManualBtn.disabled = true;
-            } catch (e) {
-                alert('Eroare la salvarea sesiunii: ' + e.message);
-            }
-        });
-
-        function formatTime(seconds) {
-            const hrs = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            return `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-        }
     </script>
 </body>
 </html>
