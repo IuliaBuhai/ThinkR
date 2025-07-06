@@ -514,18 +514,21 @@
 
     </div>
 
-    <script>
-        // Initialize charts
-        document.addEventListener('DOMContentLoaded', function() {
-            import { renderCharts } from "./charts.js";
+    <script type="module">
+        import { renderCharts } from './charts.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
 
-            firebase.auth().onAuthStateChanged(user => {
-                if (user) {
-                    renderCharts(user.uid);
-                }
-            });
-
-        
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const auth = getAuth();
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                renderCharts(user.uid);
+            } else {
+                window.location.href = 'login.html'; 
+            }
+        });
+    });
     </script>
 </body>
 </html>
